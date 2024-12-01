@@ -4,7 +4,6 @@ import lombok.*;
 
 import java.sql.Timestamp;
 
-// getter, setter, toString, equals, hashCode를 자동으로 생성
 @Data
 
 @NoArgsConstructor
