@@ -19,6 +19,6 @@ public class ValidationService {
      * @return 중복 여부 boolean
      */
     public boolean isUnique(String field, String value) {
-        return memberDao.selectCount(field, value) == 0;
+        return memberDao.selectCountByFieldAndValue(field, value) == 0;
     }
 }

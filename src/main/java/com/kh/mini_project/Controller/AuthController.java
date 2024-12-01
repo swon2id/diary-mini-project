@@ -1,5 +1,6 @@
 package com.kh.mini_project.Controller;
 
+import com.kh.mini_project.Dto.LoginRequestDto;
 import com.kh.mini_project.Dto.SignUpCheckUniqueRequestDto;
 import com.kh.mini_project.Dto.SignUpRequestDto;
 import com.kh.mini_project.Service.AuthService;
@@ -36,6 +37,15 @@ public class AuthController {
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
         response.put("isUnique", isUnique);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, Object>> login(@Valid @RequestBody LoginRequestDto dto) {
+        boolean isValid = authService.validateCredentials(dto);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", isValid);
         return ResponseEntity.ok(response);
     }
 }

@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import java.util.HashMap;
+import java.util.Map;
+
 // RestAPI 형식으로 수신/응답하는 과정에서 발생하는 예외를 전역으로 핸들링할 수 있게 해주는 어노테이션
 @RestControllerAdvice
 @Slf4j
@@ -60,7 +63,11 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDto> handleValidationException(MethodArgumentNotValidException e) {
-        return new ResponseEntity<>(new ErrorResponseDto("유효한 값이 전달되지 않았습니다."), HttpStatus.BAD_REQUEST);
+        Map<String, String> fieldErrorDetails = new HashMap<>();
+        e.getBindingResult().getFieldErrors().forEach(error ->
+                fieldErrorDetails.put(error.getField(), error.getDefaultMessage())
+        );
+        return new ResponseEntity<>(new ErrorResponseDto("유효하지 않은 요청입니다.", fieldErrorDetails), HttpStatus.BAD_REQUEST);
     }
 
     /**
