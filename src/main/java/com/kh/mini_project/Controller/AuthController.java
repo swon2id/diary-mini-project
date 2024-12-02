@@ -42,10 +42,11 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@Valid @RequestBody LoginRequestDto dto) {
-        boolean isValid = authService.validateCredentials(dto);
+        boolean isAuthenticated = authService.validateCredentials(dto);
 
         Map<String, Object> response = new HashMap<>();
-        response.put("success", isValid);
+        response.put("success", true);
+        response.put("isAuthenticated", isAuthenticated);
         return ResponseEntity.ok(response);
     }
 }
