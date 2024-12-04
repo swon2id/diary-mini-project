@@ -1,12 +1,10 @@
 package com.kh.mini_project.Dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.Map;
 
 @Data
-@AllArgsConstructor
 public class ErrorResponseDto {
     private boolean success = false;
     private String message;

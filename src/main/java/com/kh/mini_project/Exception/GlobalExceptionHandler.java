@@ -51,7 +51,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<ErrorResponseDto> handleDataAccessException(DataAccessException e) {
-        log.error("처리되지 않은 DataAccessException: {}", e.getMessage());
+        log.error("처리되지 않은 DataAccessException: ", e);
         return new ResponseEntity<>(new ErrorResponseDto("데이터를 CRUD하는 과정에서 처리되지 않은 예외가 발생했습니다."), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -111,7 +111,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDto> handleInternalError(Exception e) {
-        log.error("처리되지 않은 Exception: {}", e.getMessage());
+        log.error("처리되지 않은 Exception: ", e);
         return new ResponseEntity<>(new ErrorResponseDto("처리되지 않은 예외가 발생했습니다."), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

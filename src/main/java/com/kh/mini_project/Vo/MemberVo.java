@@ -1,11 +1,9 @@
 package com.kh.mini_project.Vo;
 
 import lombok.*;
-
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Data
-
 @NoArgsConstructor
 @AllArgsConstructor
 public class MemberVo {
@@ -14,5 +12,5 @@ public class MemberVo {
     private String password;
     private String email;
     private String nickname;
-    private Timestamp registrationDate;
+    private LocalDateTime registrationDate;
 }

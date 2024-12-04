@@ -1,6 +1,6 @@
 package com.kh.mini_project.Controller;
 
-import com.kh.mini_project.Dto.LoginRequestDto;
+import com.kh.mini_project.Dto.LoginAuthenticationRequestDto;
 import com.kh.mini_project.Dto.SignUpCheckUniqueRequestDto;
 import com.kh.mini_project.Dto.SignUpRequestDto;
 import com.kh.mini_project.Service.AuthService;
@@ -32,7 +32,7 @@ public class AuthController {
 
     @GetMapping("/signup/check-unique")
     public ResponseEntity<Map<String, Object>> checkDuplicate(@Valid SignUpCheckUniqueRequestDto dto) {
-        boolean isUnique = validationService.isUnique(dto.getField(), dto.getValue());
+        boolean isUnique = validationService.isUnique(dto);
 
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
@@ -41,7 +41,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@Valid @RequestBody LoginRequestDto dto) {
+    public ResponseEntity<Map<String, Object>> login(@Valid @RequestBody LoginAuthenticationRequestDto dto) {
         boolean isAuthenticated = authService.validateCredentials(dto);
 
         Map<String, Object> response = new HashMap<>();

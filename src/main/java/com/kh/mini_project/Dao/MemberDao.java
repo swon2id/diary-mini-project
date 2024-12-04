@@ -2,7 +2,6 @@ package com.kh.mini_project.Dao;
 
 import com.kh.mini_project.Vo.MemberVo;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Repository;
 import static com.kh.mini_project.Common.MemberQuery.*;
 
 
-@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class MemberDao {
@@ -34,5 +32,10 @@ public class MemberDao {
     public int selectCountByIdAndPassword(String id, String password) {
         Integer count = jdbcTemplate.queryForObject(SELECT_COUNT_BY_ID_AND_PASSWORD_QUERY, new Object[]{id, password}, Integer.class);
         return count == null ? 0 : count;
+    }
+
+    public int selectMemberNumById(String id) {
+        Integer memberNum = jdbcTemplate.queryForObject(SELECT_MEMBER_NUM_BY_ID_QUERY, new Object[]{id}, Integer.class);
+        return memberNum == null ? -1 : memberNum;
     }
 }
