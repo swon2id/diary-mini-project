@@ -42,11 +42,13 @@ public class DiaryService {
         }
 
         List<String> diaryTags = diaryDto.getTags();
-        for (String tag: diaryTags) {
-            DiaryTagVo diaryTagVo = new DiaryTagVo();
-            diaryTagVo.setDiaryNum(diaryPrimaryKey);
-            diaryTagVo.setTagName(tag);
-            diaryTagDao.insert(diaryTagVo);
+        if (diaryTags != null) {
+            for (String tag: diaryTags) {
+                DiaryTagVo diaryTagVo = new DiaryTagVo();
+                diaryTagVo.setDiaryNum(diaryPrimaryKey);
+                diaryTagVo.setTagName(tag);
+                diaryTagDao.insert(diaryTagVo);
+            }
         }
 
         List<DiarySaveRequestDto.DiaryDto.CodingDiaryEntryDto> codingDiaryEntries = diaryDto.getCodingDiaryEntries();
