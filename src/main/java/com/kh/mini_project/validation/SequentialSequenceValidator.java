@@ -1,6 +1,6 @@
 package com.kh.mini_project.validation;
 
-import com.kh.mini_project.dto.DiarySaveRequestDto.DiaryDto.CodingDiaryEntryDto;
+import com.kh.mini_project.dto.DiaryDto.CodingDiaryEntryDto;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

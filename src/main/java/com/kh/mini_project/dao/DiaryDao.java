@@ -1,5 +1,7 @@
 package com.kh.mini_project.dao;
 
+import com.kh.mini_project.dto.DiaryDto;
+import com.kh.mini_project.dto.DiarySaveRequestDto;
 import com.kh.mini_project.vo.DiaryVo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -8,6 +10,8 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.kh.mini_project.common.DiaryQuery.*;
 
@@ -31,5 +35,15 @@ public class DiaryDao {
 
         Number key = keyHolder.getKey();
         return key != null ? key.intValue() : null;
+    }
+
+    public List<DiaryVo> selectByIdAndDate(int memberNum, String year, String month) {
+        return jdbcTemplate.query(SELECT_BY_ID_AND_DATE_QUERY, new Object[]{memberNum, year, month}, (rs, rowNum) -> new DiaryVo(
+                rs.getInt("DIARY_NUM"),
+                rs.getInt("MEMBER_NUM"),
+                rs.getString("TITLE"),
+                rs.getString("CONTENT"),
+                rs.getTimestamp("WRITTEN_DATE").toLocalDateTime()
+        ));
     }
 }
