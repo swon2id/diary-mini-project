@@ -159,7 +159,7 @@ public class DiaryService {
         diaryDto.setTitle(diaryVo.getTitle());
         diaryDto.setContent(diaryVo.getContent());
 
-        List<String> tagList = diaryTagVoList == null
+        List<String> tagList = diaryTagVoList.isEmpty()
                 ? null
                 : diaryTagVoList.stream()
                 .map(DiaryTagVo::getTagName)
