@@ -30,7 +30,7 @@ public class DiaryDto {
 
     @Valid
     @ValidSequentialSequence
-    private List<DiaryDto.CodingDiaryEntryDto> codingDiaryEntries;
+    private List<CodingDiaryEntryDto> codingDiaryEntries;
 
     @Data
     public static class CodingDiaryEntryDto {

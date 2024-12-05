@@ -1,6 +1,6 @@
 package com.kh.mini_project.exception;
 
-import com.kh.mini_project.dto.ErrorResponseDto;
+import com.kh.mini_project.dto.response.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -28,8 +28,8 @@ public class GlobalExceptionHandler {
      * @return 오류 메시지와 HTTP 상태 코드를 포함한 ResponseEntity 객체
      */
     @ExceptionHandler(DuplicateKeyException.class)
-    public ResponseEntity<ErrorResponseDto> handleDuplicateKeyException(DuplicateKeyException e) {
-        return new ResponseEntity<>(new ErrorResponseDto("UNIQUE 제약조건 위반입니다."), HttpStatus.CONFLICT);
+    public ResponseEntity<ErrorResponse> handleDuplicateKeyException(DuplicateKeyException e) {
+        return new ResponseEntity<>(new ErrorResponse("UNIQUE 제약조건 위반입니다."), HttpStatus.CONFLICT);
     }
 
     /**
@@ -39,8 +39,8 @@ public class GlobalExceptionHandler {
      * @return 오류 메시지와 HTTP 상태 코드를 포함한 ResponseEntity 객체
      */
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ErrorResponseDto> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
-        return new ResponseEntity<>(new ErrorResponseDto("UNIQUE 이외 무결성 제약조건 위반입니다."), HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
+        return new ResponseEntity<>(new ErrorResponse("UNIQUE 이외 무결성 제약조건 위반입니다."), HttpStatus.BAD_REQUEST);
     }
 
     /**
@@ -50,9 +50,9 @@ public class GlobalExceptionHandler {
      * @return 오류 메시지와 HTTP 상태 코드를 포함한 ResponseEntity 객체
      */
     @ExceptionHandler(DataAccessException.class)
-    public ResponseEntity<ErrorResponseDto> handleDataAccessException(DataAccessException e) {
+    public ResponseEntity<ErrorResponse> handleDataAccessException(DataAccessException e) {
         log.error("처리되지 않은 DataAccessException: ", e);
-        return new ResponseEntity<>(new ErrorResponseDto("데이터를 CRUD하는 과정에서 처리되지 않은 예외가 발생했습니다."), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new ErrorResponse("데이터를 CRUD하는 과정에서 처리되지 않은 예외가 발생했습니다."), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -62,12 +62,12 @@ public class GlobalExceptionHandler {
      * @return 필드별 오류 메시지와 HTTP 상태 코드를 포함한 ResponseEntity 객체
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponseDto> handleValidationException(MethodArgumentNotValidException e) {
+    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException e) {
         Map<String, String> fieldErrorDetails = new HashMap<>();
         e.getBindingResult().getFieldErrors().forEach(error ->
                 fieldErrorDetails.put(error.getField(), error.getDefaultMessage())
         );
-        return new ResponseEntity<>(new ErrorResponseDto("유효하지 않은 요청입니다.", fieldErrorDetails), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ErrorResponse("유효하지 않은 요청입니다.", fieldErrorDetails), HttpStatus.BAD_REQUEST);
     }
 
     /**
@@ -77,8 +77,8 @@ public class GlobalExceptionHandler {
      * @return 오류 메시지와 HTTP 상태 코드를 포함한 ResponseEntity 객체
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorResponseDto> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
-        return new ResponseEntity<>(new ErrorResponseDto("요청 본문이 없거나, 잘못된 JSON 형식입니다."), HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+        return new ResponseEntity<>(new ErrorResponse("요청 본문이 없거나, 잘못된 JSON 형식입니다."), HttpStatus.BAD_REQUEST);
     }
 
     /**
@@ -88,8 +88,8 @@ public class GlobalExceptionHandler {
      * @return 오류 메시지와 HTTP 상태 코드를 포함한 ResponseEntity 객체
      */
     @ExceptionHandler(NoResourceFoundException.class)
-    public ResponseEntity<ErrorResponseDto> handleNoResourceFoundException(NoResourceFoundException e) {
-        return new ResponseEntity<>(new ErrorResponseDto("해당 API 엔드포인트는 존재하지 않습니다."), HttpStatus.NOT_FOUND);
+    public ResponseEntity<ErrorResponse> handleNoResourceFoundException(NoResourceFoundException e) {
+        return new ResponseEntity<>(new ErrorResponse("해당 API 엔드포인트는 존재하지 않습니다."), HttpStatus.NOT_FOUND);
     }
 
     /**
@@ -99,8 +99,8 @@ public class GlobalExceptionHandler {
      * @return 오류 메시지와 HTTP 상태 코드를 포함한 ResponseEntity 객체
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<ErrorResponseDto> handleNotSupportedRequestMethod(HttpRequestMethodNotSupportedException e) {
-        return new ResponseEntity<>(new ErrorResponseDto("해당 HTTP 메서드는 지원하지 않습니다."), HttpStatus.NOT_FOUND);
+    public ResponseEntity<ErrorResponse> handleNotSupportedRequestMethod(HttpRequestMethodNotSupportedException e) {
+        return new ResponseEntity<>(new ErrorResponse("해당 HTTP 메서드는 지원하지 않습니다."), HttpStatus.NOT_FOUND);
     }
 
     /**
@@ -110,8 +110,8 @@ public class GlobalExceptionHandler {
      * @return 오류 메시지와 HTTP 상태 코드를 포함한 ResponseEntity 객체
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponseDto> handleInternalError(Exception e) {
+    public ResponseEntity<ErrorResponse> handleInternalError(Exception e) {
         log.error("처리되지 않은 Exception: ", e);
-        return new ResponseEntity<>(new ErrorResponseDto("처리되지 않은 예외가 발생했습니다."), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new ErrorResponse("처리되지 않은 예외가 발생했습니다."), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

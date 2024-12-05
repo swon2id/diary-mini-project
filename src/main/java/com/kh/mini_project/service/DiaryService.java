@@ -3,8 +3,9 @@ package com.kh.mini_project.service;
 import com.kh.mini_project.common.TimeUtils;
 import com.kh.mini_project.dao.*;
 import com.kh.mini_project.dto.DiaryDto;
-import com.kh.mini_project.dto.LoginAuthenticationRequestDto;
-import com.kh.mini_project.dto.MonthlyDiaryListRequestDto;
+import com.kh.mini_project.dto.MonthlyDiaryEntryDto;
+import com.kh.mini_project.dto.request.AuthenticateLoginRequest;
+import com.kh.mini_project.dto.request.GetMonthlyDiaryListRequest;
 import com.kh.mini_project.vo.CodingDiaryEntryVo;
 import com.kh.mini_project.vo.CodingDiaryVo;
 import com.kh.mini_project.vo.DiaryTagVo;
@@ -14,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Time;
 import java.util.*;
 
 @Slf4j
@@ -29,7 +29,7 @@ public class DiaryService {
 
     // 예외 발생시 자동 롤백
     @Transactional
-    public void saveNewDiary(LoginAuthenticationRequestDto loginDto, DiaryDto diaryDto) {
+    public void saveNewDiary(AuthenticateLoginRequest loginDto, DiaryDto diaryDto) {
         int memberNum = memberDao.selectMemberNumById(loginDto.getId());
         if (memberNum == -1) {
             throw new IllegalArgumentException("ID, PW는 인증되었지만, ID로 memberNum을 조회하는데 실패하였습니다.");
@@ -76,7 +76,7 @@ public class DiaryService {
         }
     }
 
-    public List<DiaryDto> getMonthlyDiaryList(LoginAuthenticationRequestDto loginDto, MonthlyDiaryListRequestDto.DateDto dateDto) {
+    public List<MonthlyDiaryEntryDto> getDiaryListMonthly(AuthenticateLoginRequest loginDto, GetMonthlyDiaryListRequest.DateDto dateDto) {
         int memberNum = memberDao.selectMemberNumById(loginDto.getId());
         if (memberNum == -1) {
             throw new IllegalArgumentException("ID, PW는 인증되었지만, ID로 memberNum을 조회하는데 실패하였습니다.");
@@ -103,22 +103,23 @@ public class DiaryService {
         }
 
         // 최종: 반환용 리스트
-        List<DiaryDto> diaryDtoList = new ArrayList<>();
+        List<MonthlyDiaryEntryDto> monthlyDiaryEntryList = new ArrayList<>();
         for (var diaryVo: diaryVoList) {
-            DiaryDto diaryDto = new DiaryDto();
-            diaryDto.setTitle(diaryVo.getTitle());
-            diaryDto.setContent(diaryVo.getContent());
+            MonthlyDiaryEntryDto monthlyDiaryEntry = new MonthlyDiaryEntryDto();
+            monthlyDiaryEntry.setDiaryNum(diaryVo.getDiaryNum().toString());
+            monthlyDiaryEntry.setTitle(diaryVo.getTitle());
+            monthlyDiaryEntry.setContent(diaryVo.getContent());
 
             List<String> tagNameList = Optional.ofNullable(memberDiaryTagMap.get(diaryVo.getDiaryNum()))
                     .orElse(Collections.emptyList())
                     .stream()
                     .map(DiaryTagVo::getTagName)
                     .toList();
-            diaryDto.setTags(tagNameList.isEmpty() ? null : tagNameList);
-            diaryDto.setWrittenDate(TimeUtils.convertLocalDateTimeToString(diaryVo.getWrittenDate()));
-            diaryDtoList.add(diaryDto);
+            monthlyDiaryEntry.setTags(tagNameList.isEmpty() ? null : tagNameList);
+            monthlyDiaryEntry.setWrittenDate(TimeUtils.convertLocalDateTimeToString(diaryVo.getWrittenDate()));
+            monthlyDiaryEntryList.add(monthlyDiaryEntry);
         }
 
-        return !diaryDtoList.isEmpty() ? diaryDtoList : null;
+        return !monthlyDiaryEntryList.isEmpty() ? monthlyDiaryEntryList : null;
     }
 }

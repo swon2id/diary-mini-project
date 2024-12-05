@@ -1,4 +1,4 @@
-package com.kh.mini_project.dto;
+package com.kh.mini_project.dto.request;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -6,9 +6,9 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 @Data
-public class MonthlyDiaryListRequestDto {
+public class GetMonthlyDiaryListRequest {
     @Valid
-    private LoginAuthenticationRequestDto loggedInMember;
+    private AuthenticateLoginRequest loggedInMember;
 
     @Valid
     private DateDto date;

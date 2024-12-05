@@ -1,11 +1,11 @@
-package com.kh.mini_project.dto;
+package com.kh.mini_project.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 @Data
-public class SignUpCheckUniqueRequestDto {
+public class CheckUniqueStatusRequest {
     @NotBlank(message = "Field가 전달되지 않았습니다.")
     @Pattern(regexp = "^(id|email|nickname)$", message = "field는 'id', 'email', 'nickname' 중 하나여야 합니다.")
     private String field;

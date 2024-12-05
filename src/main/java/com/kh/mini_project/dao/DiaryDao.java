@@ -1,7 +1,5 @@
 package com.kh.mini_project.dao;
 
-import com.kh.mini_project.dto.DiaryDto;
-import com.kh.mini_project.dto.DiarySaveRequestDto;
 import com.kh.mini_project.vo.DiaryVo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -10,7 +8,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.kh.mini_project.common.DiaryQuery.*;

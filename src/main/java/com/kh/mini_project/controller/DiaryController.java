@@ -1,8 +1,8 @@
 package com.kh.mini_project.controller;
 
-import com.kh.mini_project.dto.DiaryDto;
-import com.kh.mini_project.dto.MonthlyDiaryListRequestDto;
-import com.kh.mini_project.dto.DiarySaveRequestDto;
+import com.kh.mini_project.dto.MonthlyDiaryEntryDto;
+import com.kh.mini_project.dto.request.GetMonthlyDiaryListRequest;
+import com.kh.mini_project.dto.request.SaveNewDiaryRequest;
 import com.kh.mini_project.service.AuthService;
 import com.kh.mini_project.service.DiaryService;
 import jakarta.validation.Valid;
@@ -26,7 +26,7 @@ public class DiaryController {
     private final DiaryService diaryService;
 
     @PostMapping("save")
-    public ResponseEntity<Map<String, Object>> handleSaveNewDiary(@Valid @RequestBody DiarySaveRequestDto dto) {
+    public ResponseEntity<Map<String, Object>> handleSaveNewDiary(@Valid @RequestBody SaveNewDiaryRequest dto) {
         Map<String, Object> response = new HashMap<>();
         HttpStatus httpStatus;
 
@@ -42,8 +42,8 @@ public class DiaryController {
         return new ResponseEntity<>(response, httpStatus);
     }
 
-    @PostMapping("get-monthly")
-    public ResponseEntity<Map<String, Object>> handleGetMonthlyDiaryList(@Valid @RequestBody MonthlyDiaryListRequestDto dto) {
+    @PostMapping("get-monthly-list")
+    public ResponseEntity<Map<String, Object>> handleGetMonthlyDiaryList(@Valid @RequestBody GetMonthlyDiaryListRequest dto) {
         Map<String, Object> response = new HashMap<>();
         HttpStatus httpStatus;
 
@@ -51,7 +51,7 @@ public class DiaryController {
             response.put("success", false);
             httpStatus = HttpStatus.UNAUTHORIZED;
         } else {
-            List<DiaryDto> diaries = diaryService.getMonthlyDiaryList(dto.getLoggedInMember(), dto.getDate());
+            List<MonthlyDiaryEntryDto> diaries = diaryService.getDiaryListMonthly(dto.getLoggedInMember(), dto.getDate());
             response.put("success", true);
             response.put("diaries", diaries);
             httpStatus = HttpStatus.OK;
