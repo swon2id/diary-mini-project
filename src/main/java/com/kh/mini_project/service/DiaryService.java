@@ -122,4 +122,52 @@ public class DiaryService {
 
         return !monthlyDiaryEntryList.isEmpty() ? monthlyDiaryEntryList : null;
     }
+
+    public DiaryDto getDiary(AuthenticateLoginRequest loginDto, int diaryNum) {
+        int memberNum = memberDao.selectMemberNumById(loginDto.getId());
+        if (memberNum == -1) {
+            throw new IllegalArgumentException("ID, PW는 인증되었지만, ID로 memberNum을 조회하는데 실패하였습니다.");
+        }
+
+        // 1단계: 일기 조회
+        DiaryVo diaryVo = diaryDao.selectByDiaryNum(diaryNum);
+
+        // 2단계: 조회되는 일기가 없다면 null 반환
+        if (diaryVo == null) return null;
+
+        // 3단계: 일기의 태그 리스트 조회
+        List<DiaryTagVo> diaryTagVoList = diaryTagDao.selectByDiaryNum(diaryNum);
+
+        // 4단계: 일기에 대한 코딩 일기 및 코딩 일기 항목 조회
+        CodingDiaryVo codingDiaryVo = codingDiaryDao.selectByDiaryNum(diaryNum);
+        List<DiaryDto.CodingDiaryEntryDto> codingDiaryEntries = null;
+        if (codingDiaryVo != null) {
+            List<CodingDiaryEntryVo> codingDiaryEntryVoList = codingDiaryEntryDao.selectByCodingDiaryNum(codingDiaryVo.getCodingDiaryNum());
+            codingDiaryEntries = new ArrayList<>();
+
+            for (var entryVo: codingDiaryEntryVoList) {
+                DiaryDto.CodingDiaryEntryDto entryDto = new DiaryDto.CodingDiaryEntryDto();
+                entryDto.setProgrammingLanguageName(entryVo.getProgrammingLanguageName());
+                entryDto.setContent(entryVo.getContent());
+                entryDto.setSequence(entryVo.getSequence());
+                codingDiaryEntries.add(entryDto);
+            }
+        }
+
+        // 최종: 반환용 dto
+        DiaryDto diaryDto = new DiaryDto();
+        diaryDto.setTitle(diaryVo.getTitle());
+        diaryDto.setContent(diaryVo.getContent());
+
+        List<String> tagList = diaryTagVoList == null
+                ? null
+                : diaryTagVoList.stream()
+                .map(DiaryTagVo::getTagName)
+                .toList();
+        diaryDto.setTags(tagList);
+        diaryDto.setWrittenDate(TimeUtils.convertLocalDateTimeToString(diaryVo.getWrittenDate()));
+        diaryDto.setCodingDiaryEntries(codingDiaryEntries);
+
+        return diaryDto;
+    }
 }

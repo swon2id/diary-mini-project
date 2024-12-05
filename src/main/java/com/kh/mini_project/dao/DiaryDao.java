@@ -2,6 +2,7 @@ package com.kh.mini_project.dao;
 
 import com.kh.mini_project.vo.DiaryVo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -42,5 +43,20 @@ public class DiaryDao {
                 rs.getString("CONTENT"),
                 rs.getTimestamp("WRITTEN_DATE").toLocalDateTime()
         ));
+    }
+
+    public DiaryVo selectByDiaryNum(int diaryNum) {
+        try {
+            return jdbcTemplate.queryForObject(SELECT_BY_DIARY_NUM_QUERY, new Object[]{diaryNum}, (rs, rowNum) -> new DiaryVo(
+                    rs.getInt("DIARY_NUM"),
+                    rs.getInt("MEMBER_NUM"),
+                    rs.getString("TITLE"),
+                    rs.getString("CONTENT"),
+                    rs.getTimestamp("WRITTEN_DATE").toLocalDateTime()
+            ));
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+
     }
 }

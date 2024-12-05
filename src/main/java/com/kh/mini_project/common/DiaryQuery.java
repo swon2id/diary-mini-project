@@ -6,4 +6,6 @@ public class DiaryQuery {
             "VALUES(SEQ_DIARY.NEXTVAL, ?, ?, ?, ?)";
     public static final String SELECT_BY_ID_AND_DATE_QUERY = "" +
             "SELECT * FROM DIARY WHERE MEMBER_NUM = ? AND TO_CHAR(WRITTEN_DATE, 'YYYY') = ? AND TO_CHAR(WRITTEN_DATE, 'MM') = ?";
+    public static final String SELECT_BY_DIARY_NUM_QUERY = "" +
+            "SELECT * FROM DIARY WHERE DIARY_NUM = ?";
 }

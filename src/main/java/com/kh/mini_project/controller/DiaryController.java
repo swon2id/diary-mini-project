@@ -1,6 +1,8 @@
 package com.kh.mini_project.controller;
 
+import com.kh.mini_project.dto.DiaryDto;
 import com.kh.mini_project.dto.MonthlyDiaryEntryDto;
+import com.kh.mini_project.dto.request.GetDiaryRequest;
 import com.kh.mini_project.dto.request.GetMonthlyDiaryListRequest;
 import com.kh.mini_project.dto.request.SaveNewDiaryRequest;
 import com.kh.mini_project.service.AuthService;
@@ -54,6 +56,24 @@ public class DiaryController {
             List<MonthlyDiaryEntryDto> diaries = diaryService.getDiaryListMonthly(dto.getLoggedInMember(), dto.getDate());
             response.put("success", true);
             response.put("diaries", diaries);
+            httpStatus = HttpStatus.OK;
+        }
+
+        return new ResponseEntity<>(response, httpStatus);
+    }
+
+    @PostMapping("get")
+    public ResponseEntity<Map<String, Object>> handleGetDiary(@Valid @RequestBody GetDiaryRequest dto) {
+        Map<String, Object> response = new HashMap<>();
+        HttpStatus httpStatus;
+
+        if (!authService.validateCredentials(dto.getLoggedInMember())) {
+            response.put("success", false);
+            httpStatus = HttpStatus.UNAUTHORIZED;
+        } else {
+            DiaryDto diary = diaryService.getDiary(dto.getLoggedInMember(), Integer.parseInt(dto.getDiaryNum()));
+            response.put("success", true);
+            response.put("diary", diary);
             httpStatus = HttpStatus.OK;
         }
 
