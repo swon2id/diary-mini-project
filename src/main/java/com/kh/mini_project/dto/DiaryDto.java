@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 
 @Data
@@ -18,7 +19,8 @@ public class DiaryDto {
     private String content;
 
     // 값이 전달되지 않을 수 있음
-    private List<String> tags;
+    // 중복 불허, 순서 보장
+    private LinkedHashSet<String> tags;
 
     @NotNull(message = "작성일이 전달되지 않았습니다.")
     // ISO 8601 시간 표기에 대한 표준 형식

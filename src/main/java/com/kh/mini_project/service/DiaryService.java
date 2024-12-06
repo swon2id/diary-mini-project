@@ -11,13 +11,12 @@ import com.kh.mini_project.vo.CodingDiaryVo;
 import com.kh.mini_project.vo.DiaryTagVo;
 import com.kh.mini_project.vo.DiaryVo;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DiaryService {
@@ -45,7 +44,7 @@ public class DiaryService {
             throw new NullPointerException("일기가 생성되었지만, PK를 얻는데 실패하였습니다.");
         }
 
-        List<String> diaryTags = diaryDto.getTags();
+        LinkedHashSet<String> diaryTags = diaryDto.getTags();
         if (diaryTags != null) {
             for (String tag: diaryTags) {
                 DiaryTagVo diaryTagVo = new DiaryTagVo();
@@ -109,13 +108,16 @@ public class DiaryService {
             monthlyDiaryEntry.setDiaryNum(diaryVo.getDiaryNum().toString());
             monthlyDiaryEntry.setTitle(diaryVo.getTitle());
             monthlyDiaryEntry.setContent(diaryVo.getContent());
-
-            List<String> tagNameList = Optional.ofNullable(memberDiaryTagMap.get(diaryVo.getDiaryNum()))
-                    .orElse(Collections.emptyList())
-                    .stream()
-                    .map(DiaryTagVo::getTagName)
-                    .toList();
-            monthlyDiaryEntry.setTags(tagNameList.isEmpty() ? null : tagNameList);
+            monthlyDiaryEntry.setTags(
+                    Optional.ofNullable(memberDiaryTagMap.get(diaryVo.getDiaryNum()))
+                            .orElse(Collections.emptyList())
+                            .stream()
+                            .map(DiaryTagVo::getTagName)
+                            .collect(Collectors.collectingAndThen(
+                                    Collectors.toCollection(LinkedHashSet::new),
+                                    tags -> tags.isEmpty() ? null : tags
+                            ))
+            );
             monthlyDiaryEntry.setWrittenDate(TimeUtils.convertLocalDateTimeToString(diaryVo.getWrittenDate()));
             monthlyDiaryEntryList.add(monthlyDiaryEntry);
         }
@@ -154,17 +156,15 @@ public class DiaryService {
             }
         }
 
-        // 최종: 반환용 dto
+        // 5단계: 응답을 위한 DiaryDto 인스턴스 생성
         DiaryDto diaryDto = new DiaryDto();
         diaryDto.setTitle(diaryVo.getTitle());
         diaryDto.setContent(diaryVo.getContent());
-
-        List<String> tagList = diaryTagVoList.isEmpty()
+        diaryDto.setTags(diaryTagVoList.isEmpty()
                 ? null
                 : diaryTagVoList.stream()
                 .map(DiaryTagVo::getTagName)
-                .toList();
-        diaryDto.setTags(tagList);
+                .collect(Collectors.toCollection(LinkedHashSet::new)));
         diaryDto.setWrittenDate(TimeUtils.convertLocalDateTimeToString(diaryVo.getWrittenDate()));
         diaryDto.setCodingDiaryEntries(codingDiaryEntries);
 
