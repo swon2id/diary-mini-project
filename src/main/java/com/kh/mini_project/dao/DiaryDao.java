@@ -9,6 +9,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.kh.mini_project.common.DiaryQuery.*;
@@ -58,5 +59,9 @@ public class DiaryDao {
             return null;
         }
 
+    }
+
+    public boolean update(int diaryNum, String title, String content, LocalDateTime writtenDate) {
+        return 1 == jdbcTemplate.update(UPDATE_QUERY, title, content, writtenDate, diaryNum);
     }
 }

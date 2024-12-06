@@ -32,7 +32,7 @@ public class CodingDiaryDao {
     public CodingDiaryVo selectByDiaryNum(int diaryNum) {
         try {
             return jdbcTemplate.queryForObject(
-                    SELECT_BY_DIARY_NUM,
+                    SELECT_BY_DIARY_NUM_QUERY,
                     new Object[]{diaryNum},
                     (rs, rowNum) -> new CodingDiaryVo(
                             rs.getInt("CODING_DIARY_NUM"),
@@ -44,5 +44,9 @@ public class CodingDiaryDao {
         catch (EmptyResultDataAccessException e) {
             return null;
         }
+    }
+
+    public void deleteByDiaryNum(int diaryNum) {
+        jdbcTemplate.update(DELETE_BY_DIARY_NUM_QUERY, diaryNum);
     }
 }

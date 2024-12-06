@@ -11,12 +11,15 @@ import com.kh.mini_project.vo.CodingDiaryVo;
 import com.kh.mini_project.vo.DiaryTagVo;
 import com.kh.mini_project.vo.DiaryVo;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DiaryService {
@@ -169,5 +172,58 @@ public class DiaryService {
         diaryDto.setCodingDiaryEntries(codingDiaryEntries);
 
         return diaryDto;
+    }
+
+    @Transactional
+    public void updateDiary(AuthenticateLoginRequest loginDto, int diaryNum, DiaryDto updatedDiaryDto) {
+        int memberNum = memberDao.selectMemberNumById(loginDto.getId());
+        if (memberNum == -1) {
+            throw new IllegalArgumentException("ID, PW는 인증되었지만, ID로 memberNum을 조회하는데 실패하였습니다.");
+        }
+
+        // 다이어리 업데이트
+        if (!diaryDao.update(diaryNum, updatedDiaryDto.getTitle(), updatedDiaryDto.getContent(), TimeUtils.convertToLocalDateTime(updatedDiaryDto.getWrittenDate()))) {
+            throw new EmptyResultDataAccessException("업데이트 된 일기가 존재하지 않습니다. DiaryNum: " + diaryNum, 1);
+        }
+
+        // 다이어리 태그 업데이트
+        diaryTagDao.deleteByDiaryNum(diaryNum);
+        LinkedHashSet<String> updatedDiaryTagSet = updatedDiaryDto.getTags();
+        if (updatedDiaryTagSet != null && !updatedDiaryTagSet.isEmpty()) {
+            for (String updateDiaryTag: updatedDiaryTagSet) {
+                DiaryTagVo tagVo = new DiaryTagVo();
+                tagVo.setDiaryNum(diaryNum);
+                tagVo.setTagName(updateDiaryTag);
+                diaryTagDao.insert(tagVo);
+            }
+        }
+
+        // 코딩 다이어리 및 항목 업데이트
+        CodingDiaryVo oldCodingDiaryVo = codingDiaryDao.selectByDiaryNum(diaryNum);
+        if (oldCodingDiaryVo != null) {
+            int oldCodingDiaryNum = oldCodingDiaryVo.getCodingDiaryNum();
+            codingDiaryEntryDao.deleteByCodingDiaryNum(oldCodingDiaryNum);
+            codingDiaryDao.deleteByDiaryNum(diaryNum);
+        }
+
+        List<DiaryDto.CodingDiaryEntryDto> newCodingDiaryEntries = updatedDiaryDto.getCodingDiaryEntries();
+        if (newCodingDiaryEntries != null) {
+            CodingDiaryVo newCodingDiaryVo = new CodingDiaryVo();
+            newCodingDiaryVo.setDiaryNum(diaryNum);
+            Integer newCodingDiaryNum = codingDiaryDao.insertAndReturnPk(newCodingDiaryVo);
+            if (newCodingDiaryNum == null) {
+                throw new NullPointerException("코딩일기가 생성되었지만, PK를 얻는데 실패하였습니다.");
+            }
+
+            for (var entry: newCodingDiaryEntries) {
+                CodingDiaryEntryVo newCodingDiaryEntryVo = new CodingDiaryEntryVo();
+                newCodingDiaryEntryVo.setCodingDiaryNum(newCodingDiaryNum);
+                newCodingDiaryEntryVo.setType(entry.getProgrammingLanguageName() == null ? "comment" : "snippet");
+                newCodingDiaryEntryVo.setProgrammingLanguageName(entry.getProgrammingLanguageName() == null ? null : entry.getProgrammingLanguageName().toLowerCase());
+                newCodingDiaryEntryVo.setContent(entry.getContent());
+                newCodingDiaryEntryVo.setSequence(entry.getSequence());
+                codingDiaryEntryDao.insert(newCodingDiaryEntryVo);
+            }
+        }
     }
 }

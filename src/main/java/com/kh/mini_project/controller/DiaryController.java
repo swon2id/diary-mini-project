@@ -5,6 +5,7 @@ import com.kh.mini_project.dto.MonthlyDiaryEntryDto;
 import com.kh.mini_project.dto.request.GetDiaryRequest;
 import com.kh.mini_project.dto.request.GetMonthlyDiaryListRequest;
 import com.kh.mini_project.dto.request.SaveNewDiaryRequest;
+import com.kh.mini_project.dto.request.UpdateDiaryRequest;
 import com.kh.mini_project.service.AuthService;
 import com.kh.mini_project.service.DiaryService;
 import jakarta.validation.Valid;
@@ -74,6 +75,24 @@ public class DiaryController {
             DiaryDto diary = diaryService.getDiary(dto.getLoggedInMember(), Integer.parseInt(dto.getDiaryNum()));
             response.put("success", true);
             response.put("diary", diary);
+            httpStatus = HttpStatus.OK;
+        }
+
+        return new ResponseEntity<>(response, httpStatus);
+    }
+
+    @PostMapping("update")
+    public ResponseEntity<Map<String, Object>> handleUpdateDiary(@Valid @RequestBody UpdateDiaryRequest dto) {
+        Map<String, Object> response = new HashMap<>();
+        HttpStatus httpStatus;
+
+        if (!authService.validateCredentials(dto.getLoggedInMember())) {
+            response.put("success", false);
+            httpStatus = HttpStatus.UNAUTHORIZED;
+        } else {
+            diaryService.updateDiary(dto.getLoggedInMember(), Integer.parseInt(dto.getDiaryNum()), dto.getUpdatedDiary());
+            response.put("success", true);
+            response.put("isUpdated", true);
             httpStatus = HttpStatus.OK;
         }
 

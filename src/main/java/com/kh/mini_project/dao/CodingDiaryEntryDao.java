@@ -19,7 +19,7 @@ public class CodingDiaryEntryDao {
     }
 
     public List<CodingDiaryEntryVo> selectByCodingDiaryNum(int codingDiaryNum) {
-        return jdbcTemplate.query(SELECT_BY_CODING_DIARY_NUM, new Object[]{codingDiaryNum}, (rs, rowNum) -> new CodingDiaryEntryVo(
+        return jdbcTemplate.query(SELECT_BY_CODING_DIARY_NUM_QUERY, new Object[]{codingDiaryNum}, (rs, rowNum) -> new CodingDiaryEntryVo(
                 rs.getInt("CODING_DIARY_ENTRY_NUM"),
                 rs.getInt("CODING_DIARY_NUM"),
                 rs.getString("TYPE"),
@@ -27,5 +27,9 @@ public class CodingDiaryEntryDao {
                 rs.getString("CONTENT"),
                 rs.getInt("SEQUENCE")
         ));
+    }
+
+    public void deleteByCodingDiaryNum(int codingDiaryNum) {
+        jdbcTemplate.update(DELETE_BY_CODING_DIARY_NUM_QUERY, codingDiaryNum);
     }
 }

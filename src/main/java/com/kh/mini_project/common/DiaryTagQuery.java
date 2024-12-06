@@ -6,4 +6,5 @@ public class DiaryTagQuery {
             "VALUES(SEQ_DIARY_TAG.NEXTVAL, ?, ?)";
     public static final String SELECT_BY_DIARY_NUM_QUERY = "" +
             "SELECT * FROM DIARY_TAG WHERE DIARY_NUM = ?";
+    public static final String DELETE_BY_DIARY_NUM_QUERY = "DELETE FROM DIARY_TAG WHERE DIARY_NUM = ?";
 }
