@@ -1,4 +1,4 @@
-package com.kh.mini_project.dto;
+package com.kh.mini_project.dto.response;
 
 import com.kh.mini_project.vo.SettingVo;
 import lombok.AllArgsConstructor;
@@ -11,7 +11,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 
-public class SettingsResponseDto {
+public class SettingsResponse {
     private int diarySettingNum;
     private int memberNum;
     private String currentTheme;
@@ -19,8 +19,8 @@ public class SettingsResponseDto {
     private String currentMainBannerImage;
     private String currentAlertSound;
 
-    public static SettingsResponseDto from(SettingVo settingVo) {
-        return new SettingsResponseDto(
+    public static SettingsResponse from(SettingVo settingVo) {
+        return new SettingsResponse(
                 settingVo.getDiarySettingNum(),
                 settingVo.getMemberNum(),
                 settingVo.getCurrentTheme() != null ? settingVo.getCurrentTheme() : "default",

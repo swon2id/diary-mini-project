@@ -1,4 +1,4 @@
-package com.kh.mini_project.dto;
+package com.kh.mini_project.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class SignUpRequestDto {
+public class SignUpRequest {
     @NotBlank(message = "ID가 전달되지 않았습니다.")
     @Pattern(
         regexp = "^[A-Za-z0-9_-]+$",

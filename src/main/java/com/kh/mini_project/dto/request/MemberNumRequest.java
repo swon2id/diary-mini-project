@@ -1,9 +1,9 @@
-package com.kh.mini_project.dto;
+package com.kh.mini_project.dto.request;
 
-public class MemberNumRequestDto {
+public class MemberNumRequest {
     private int memberNum;
 
-    public MemberNumRequestDto() {}
+    public MemberNumRequest() {}
 
     public int getMemberNum() {
         return memberNum;

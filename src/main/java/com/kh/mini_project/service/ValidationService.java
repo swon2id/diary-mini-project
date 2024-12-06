@@ -1,7 +1,7 @@
 package com.kh.mini_project.service;
 
 import com.kh.mini_project.dao.MemberDao;
-import com.kh.mini_project.dto.SignUpCheckUniqueRequestDto;
+import com.kh.mini_project.dto.request.CheckUniqueStatusRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ public class ValidationService {
      * @param dto 필드와 벨류를 유지하는 객체
      * @return 중복 여부 boolean
      */
-    public boolean isUnique(SignUpCheckUniqueRequestDto dto) {
+    public boolean isUnique(CheckUniqueStatusRequest dto) {
         return memberDao.selectCountByFieldAndValue(dto.getField(), dto.getValue()) == 0;
     }
 }

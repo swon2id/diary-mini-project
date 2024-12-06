@@ -2,8 +2,8 @@ package com.kh.mini_project.service;
 
 import com.kh.mini_project.common.TimeUtils;
 import com.kh.mini_project.dao.MemberDao;
-import com.kh.mini_project.dto.LoginAuthenticationRequestDto;
-import com.kh.mini_project.dto.SignUpRequestDto;
+import com.kh.mini_project.dto.request.AuthenticateLoginRequest;
+import com.kh.mini_project.dto.request.SignUpRequest;
 import com.kh.mini_project.vo.MemberVo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ public class AuthService {
      * @param dto 회원 가입에 필요한 4개 정보가 담긴 dto
      * @return void
      */
-    public void signUp(SignUpRequestDto dto) {
+    public void signUp(SignUpRequest dto) {
         MemberVo memberVo = new MemberVo();
         memberVo.setId(dto.getId());
         memberVo.setPassword(dto.getPassword());
@@ -35,7 +35,7 @@ public class AuthService {
      * @param dto 로그인을 위한 ID, PASSWORD가 담긴 dto
      * @return 검증 성공 여부 boolean
      */
-    public boolean validateCredentials(LoginAuthenticationRequestDto dto) {
+    public boolean validateCredentials(AuthenticateLoginRequest dto) {
         return memberDao.selectCountByIdAndPassword(dto.getId(), dto.getPassword()) == 1;
     }
 }
