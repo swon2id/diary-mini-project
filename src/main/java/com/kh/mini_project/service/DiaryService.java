@@ -11,7 +11,6 @@ import com.kh.mini_project.vo.CodingDiaryVo;
 import com.kh.mini_project.vo.DiaryTagVo;
 import com.kh.mini_project.vo.DiaryVo;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DiaryService {
@@ -29,60 +27,19 @@ public class DiaryService {
     private final CodingDiaryDao codingDiaryDao;
     private final CodingDiaryEntryDao codingDiaryEntryDao;
 
+
+
     // 예외 발생시 자동 롤백
     @Transactional
     public void saveNewDiary(AuthenticateLoginRequest loginDto, DiaryDto diaryDto) {
-        int memberNum = memberDao.selectMemberNumById(loginDto.getId());
-        if (memberNum == -1) {
-            throw new IllegalArgumentException("ID, PW는 인증되었지만, ID로 memberNum을 조회하는데 실패하였습니다.");
-        }
-
-        DiaryVo diaryVo = new DiaryVo();
-        diaryVo.setMemberNum(memberNum);
-        diaryVo.setTitle(diaryDto.getTitle());
-        diaryVo.setContent(diaryDto.getContent());
-        diaryVo.setWrittenDate(TimeUtils.convertToLocalDateTime(diaryDto.getWrittenDate()));
-        Integer diaryPrimaryKey = diaryDao.insertAndReturnPk(diaryVo);
-        if (diaryPrimaryKey == null) {
-            throw new NullPointerException("일기가 생성되었지만, PK를 얻는데 실패하였습니다.");
-        }
-
-        LinkedHashSet<String> diaryTags = diaryDto.getTags();
-        if (diaryTags != null) {
-            for (String tag: diaryTags) {
-                DiaryTagVo diaryTagVo = new DiaryTagVo();
-                diaryTagVo.setDiaryNum(diaryPrimaryKey);
-                diaryTagVo.setTagName(tag);
-                diaryTagDao.insert(diaryTagVo);
-            }
-        }
-
-        List<DiaryDto.CodingDiaryEntryDto> codingDiaryEntries = diaryDto.getCodingDiaryEntries();
-        if (codingDiaryEntries != null) {
-            CodingDiaryVo codingDiaryVo = new CodingDiaryVo();
-            codingDiaryVo.setDiaryNum(diaryPrimaryKey);
-            Integer codingDiaryPrimaryKey = codingDiaryDao.insertAndReturnPk(codingDiaryVo);
-            if (codingDiaryPrimaryKey == null) {
-                throw new NullPointerException("코딩일기가 생성되었지만, PK를 얻는데 실패하였습니다.");
-            }
-
-            for (var entry: codingDiaryEntries) {
-                CodingDiaryEntryVo codingDiaryEntryVo = new CodingDiaryEntryVo();
-                codingDiaryEntryVo.setCodingDiaryNum(codingDiaryPrimaryKey);
-                codingDiaryEntryVo.setType(entry.getProgrammingLanguageName() == null ? "comment" : "snippet");
-                codingDiaryEntryVo.setProgrammingLanguageName(entry.getProgrammingLanguageName() == null ? null : entry.getProgrammingLanguageName().toLowerCase());
-                codingDiaryEntryVo.setContent(entry.getContent());
-                codingDiaryEntryVo.setSequence(entry.getSequence());
-                codingDiaryEntryDao.insert(codingDiaryEntryVo);
-            }
-        }
+        int memberNum = getMemberNumOrThrow(loginDto);
+        int diaryNum = insertDiaryAndReturnPk(memberNum, diaryDto);
+        insertTags(diaryNum, diaryDto.getTags());
+        insertCodingDiaryEntries(diaryNum, diaryDto.getCodingDiaryEntries());
     }
 
     public List<MonthlyDiaryEntryDto> getDiaryListMonthly(AuthenticateLoginRequest loginDto, GetMonthlyDiaryListRequest.DateDto dateDto) {
-        int memberNum = memberDao.selectMemberNumById(loginDto.getId());
-        if (memberNum == -1) {
-            throw new IllegalArgumentException("ID, PW는 인증되었지만, ID로 memberNum을 조회하는데 실패하였습니다.");
-        }
+        int memberNum = getMemberNumOrThrow(loginDto);
 
         // 1단계: 일기 목록 조회
         String month = dateDto.getMonth();
@@ -129,10 +86,7 @@ public class DiaryService {
     }
 
     public DiaryDto getDiary(AuthenticateLoginRequest loginDto, int diaryNum) {
-        int memberNum = memberDao.selectMemberNumById(loginDto.getId());
-        if (memberNum == -1) {
-            throw new IllegalArgumentException("ID, PW는 인증되었지만, ID로 memberNum을 조회하는데 실패하였습니다.");
-        }
+        int memberNum = getMemberNumOrThrow(loginDto);
 
         // 1단계: 일기 조회
         DiaryVo diaryVo = diaryDao.selectByDiaryNum(diaryNum);
@@ -176,10 +130,7 @@ public class DiaryService {
 
     @Transactional
     public void updateDiary(AuthenticateLoginRequest loginDto, int diaryNum, DiaryDto updatedDiaryDto) {
-        int memberNum = memberDao.selectMemberNumById(loginDto.getId());
-        if (memberNum == -1) {
-            throw new IllegalArgumentException("ID, PW는 인증되었지만, ID로 memberNum을 조회하는데 실패하였습니다.");
-        }
+        int memberNum = getMemberNumOrThrow(loginDto);
 
         // 다이어리 업데이트
         if (!diaryDao.update(diaryNum, updatedDiaryDto.getTitle(), updatedDiaryDto.getContent(), TimeUtils.convertToLocalDateTime(updatedDiaryDto.getWrittenDate()))) {
@@ -188,15 +139,7 @@ public class DiaryService {
 
         // 다이어리 태그 업데이트
         diaryTagDao.deleteByDiaryNum(diaryNum);
-        LinkedHashSet<String> updatedDiaryTagSet = updatedDiaryDto.getTags();
-        if (updatedDiaryTagSet != null && !updatedDiaryTagSet.isEmpty()) {
-            for (String updateDiaryTag: updatedDiaryTagSet) {
-                DiaryTagVo tagVo = new DiaryTagVo();
-                tagVo.setDiaryNum(diaryNum);
-                tagVo.setTagName(updateDiaryTag);
-                diaryTagDao.insert(tagVo);
-            }
-        }
+        insertTags(diaryNum, updatedDiaryDto.getTags());
 
         // 코딩 다이어리 및 항목 업데이트
         CodingDiaryVo oldCodingDiaryVo = codingDiaryDao.selectByDiaryNum(diaryNum);
@@ -206,24 +149,68 @@ public class DiaryService {
             codingDiaryDao.deleteByDiaryNum(diaryNum);
         }
 
-        List<DiaryDto.CodingDiaryEntryDto> newCodingDiaryEntries = updatedDiaryDto.getCodingDiaryEntries();
-        if (newCodingDiaryEntries != null) {
-            CodingDiaryVo newCodingDiaryVo = new CodingDiaryVo();
-            newCodingDiaryVo.setDiaryNum(diaryNum);
-            Integer newCodingDiaryNum = codingDiaryDao.insertAndReturnPk(newCodingDiaryVo);
-            if (newCodingDiaryNum == null) {
-                throw new NullPointerException("코딩일기가 생성되었지만, PK를 얻는데 실패하였습니다.");
-            }
+        insertCodingDiaryEntries(diaryNum, updatedDiaryDto.getCodingDiaryEntries());
+    }
 
-            for (var entry: newCodingDiaryEntries) {
-                CodingDiaryEntryVo newCodingDiaryEntryVo = new CodingDiaryEntryVo();
-                newCodingDiaryEntryVo.setCodingDiaryNum(newCodingDiaryNum);
-                newCodingDiaryEntryVo.setType(entry.getProgrammingLanguageName() == null ? "comment" : "snippet");
-                newCodingDiaryEntryVo.setProgrammingLanguageName(entry.getProgrammingLanguageName() == null ? null : entry.getProgrammingLanguageName().toLowerCase());
-                newCodingDiaryEntryVo.setContent(entry.getContent());
-                newCodingDiaryEntryVo.setSequence(entry.getSequence());
-                codingDiaryEntryDao.insert(newCodingDiaryEntryVo);
-            }
+    /**
+     * 이하는 코드 중복 제거 및 가독성을 높이기 위한 헬퍼 메서드 입니다.
+     * */
+    private int getMemberNumOrThrow(AuthenticateLoginRequest loginDto) {
+        int memberNum = memberDao.selectMemberNumById(loginDto.getId());
+        if (memberNum == -1) {
+            throw new IllegalArgumentException("ID, PW는 인증되었지만, ID로 memberNum을 조회하는데 실패하였습니다.");
+        }
+        return memberNum;
+    }
+
+    private int insertDiaryAndReturnPk(int memberNum, DiaryDto diaryDto) {
+        DiaryVo diaryVo = new DiaryVo();
+        diaryVo.setMemberNum(memberNum);
+        diaryVo.setTitle(diaryDto.getTitle());
+        diaryVo.setContent(diaryDto.getContent());
+        diaryVo.setWrittenDate(TimeUtils.convertToLocalDateTime(diaryDto.getWrittenDate()));
+
+        Integer diaryNum = diaryDao.insertAndReturnPk(diaryVo);
+        if (diaryNum == null) {
+            throw new NullPointerException("일기가 생성되었지만, PK를 얻는데 실패하였습니다.");
+        }
+        return diaryNum;
+    }
+
+    private void insertTags(int diaryNum, LinkedHashSet<String> diaryTags) {
+        if (diaryTags == null || diaryTags.isEmpty()) return;
+        for (String tag: diaryTags) {
+            DiaryTagVo diaryTagVo = new DiaryTagVo();
+            diaryTagVo.setDiaryNum(diaryNum);
+            diaryTagVo.setTagName(tag);
+            diaryTagDao.insert(diaryTagVo);
+        }
+    }
+
+    private int insertCodingDiaryAndReturnPk(int diaryNum) {
+        CodingDiaryVo codingDiaryVo = new CodingDiaryVo();
+        codingDiaryVo.setDiaryNum(diaryNum);
+        Integer codingDiaryNum = codingDiaryDao.insertAndReturnPk(codingDiaryVo);
+        if (codingDiaryNum == null) {
+            throw new NullPointerException("코딩일기가 생성되었지만, PK를 얻는데 실패하였습니다.");
+        }
+        return codingDiaryNum;
+    }
+
+    private void insertCodingDiaryEntries(int diaryNum, List<DiaryDto.CodingDiaryEntryDto> codingDiaryEntries) {
+        if (codingDiaryEntries == null || codingDiaryEntries.isEmpty()) return;
+
+        int codingDiaryNum = insertCodingDiaryAndReturnPk(diaryNum);
+        for (var entry: codingDiaryEntries) {
+            CodingDiaryEntryVo codingDiaryEntryVo = new CodingDiaryEntryVo();
+            codingDiaryEntryVo.setCodingDiaryNum(codingDiaryNum);
+            codingDiaryEntryVo.setType(entry.getProgrammingLanguageName() == null ? "comment" : "snippet");
+            codingDiaryEntryVo.setProgrammingLanguageName(entry.getProgrammingLanguageName() == null
+                    ? null
+                    : entry.getProgrammingLanguageName().toLowerCase());
+            codingDiaryEntryVo.setContent(entry.getContent());
+            codingDiaryEntryVo.setSequence(entry.getSequence());
+            codingDiaryEntryDao.insert(codingDiaryEntryVo);
         }
     }
 }
