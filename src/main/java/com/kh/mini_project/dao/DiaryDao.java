@@ -36,8 +36,8 @@ public class DiaryDao {
         return key != null ? key.intValue() : null;
     }
 
-    public List<DiaryVo> selectByIdAndDate(int memberNum, String year, String month) {
-        return jdbcTemplate.query(SELECT_BY_ID_AND_DATE_QUERY, new Object[]{memberNum, year, month}, (rs, rowNum) -> new DiaryVo(
+    public List<DiaryVo> selectByMemberNumAndDate(int memberNum, String year, String month) {
+        return jdbcTemplate.query(SELECT_BY_MEMBER_NUM_AND_DATE_QUERY, new Object[]{memberNum, year, month}, (rs, rowNum) -> new DiaryVo(
                 rs.getInt("DIARY_NUM"),
                 rs.getInt("MEMBER_NUM"),
                 rs.getString("TITLE"),
@@ -63,5 +63,19 @@ public class DiaryDao {
 
     public boolean update(int diaryNum, String title, String content, LocalDateTime writtenDate) {
         return 1 == jdbcTemplate.update(UPDATE_QUERY, title, content, writtenDate, diaryNum);
+    }
+
+    public List<DiaryVo> selectByMemberNum(int memberNum) {
+        return jdbcTemplate.query(SELECT_BY_MEMBER_NUM_QUERY, new Object[]{memberNum}, (rs, rowNum) -> new DiaryVo(
+                rs.getInt("DIARY_NUM"),
+                rs.getInt("MEMBER_NUM"),
+                rs.getString("TITLE"),
+                rs.getString("CONTENT"),
+                rs.getTimestamp("WRITTEN_DATE").toLocalDateTime()
+        ));
+    }
+
+    public void deleteByDiaryNum(int diaryNum) {
+        jdbcTemplate.update("DELETE FROM DIARY WHERE DIARY_NUM = ?", diaryNum);
     }
 }

@@ -71,6 +71,17 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * 로그인된 멤버가 다른 멤버의 데이터를 수정/삭제 하는 경우 발생하는 예외를 처리합니다.
+     *
+     * @param e 처리할 SecurityException 객체
+     * @return 오류 메시지와 HTTP 상태 코드를 포함한 ResponseEntity 객체
+     */
+    @ExceptionHandler(SecurityException.class)
+    public ResponseEntity<ErrorResponse> handleSecurityException(SecurityException e) {
+        return new ResponseEntity<>(new ErrorResponse("접근 권한이 없습니다."), HttpStatus.FORBIDDEN);
+    }
+
+    /**
      * 요청 본문이 없거나, 잘못된 JSON 형식으로 인해 요청을 읽을 수 없는 경우의 예외를 처리합니다.
      *
      * @param e 처리할 HttpMessageNotReadableException 객체

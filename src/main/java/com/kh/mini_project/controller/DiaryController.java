@@ -2,8 +2,8 @@ package com.kh.mini_project.controller;
 
 import com.kh.mini_project.dto.DiaryDto;
 import com.kh.mini_project.dto.MonthlyDiaryEntryDto;
-import com.kh.mini_project.dto.request.GetDiaryRequest;
 import com.kh.mini_project.dto.request.GetMonthlyDiaryListRequest;
+import com.kh.mini_project.dto.request.GetOrDeleteDiaryRequest;
 import com.kh.mini_project.dto.request.SaveNewDiaryRequest;
 import com.kh.mini_project.dto.request.UpdateDiaryRequest;
 import com.kh.mini_project.service.AuthService;
@@ -64,7 +64,7 @@ public class DiaryController {
     }
 
     @PostMapping("get")
-    public ResponseEntity<Map<String, Object>> handleGetDiary(@Valid @RequestBody GetDiaryRequest dto) {
+    public ResponseEntity<Map<String, Object>> handleGetDiary(@Valid @RequestBody GetOrDeleteDiaryRequest dto) {
         Map<String, Object> response = new HashMap<>();
         HttpStatus httpStatus;
 
@@ -93,6 +93,24 @@ public class DiaryController {
             diaryService.updateDiary(dto.getLoggedInMember(), Integer.parseInt(dto.getDiaryNum()), dto.getUpdatedDiary());
             response.put("success", true);
             response.put("isUpdated", true);
+            httpStatus = HttpStatus.OK;
+        }
+
+        return new ResponseEntity<>(response, httpStatus);
+    }
+
+    @PostMapping("delete")
+    public ResponseEntity<Map<String, Object>> handleDeleteDiary(@Valid @RequestBody GetOrDeleteDiaryRequest dto) {
+        Map<String, Object> response = new HashMap<>();
+        HttpStatus httpStatus;
+
+        if (!authService.validateCredentials(dto.getLoggedInMember())) {
+            response.put("success", false);
+            httpStatus = HttpStatus.UNAUTHORIZED;
+        } else {
+            diaryService.deleteDiary(dto.getLoggedInMember(), Integer.parseInt(dto.getDiaryNum()));
+            response.put("success", true);
+            response.put("isDeleted", true);
             httpStatus = HttpStatus.OK;
         }
 

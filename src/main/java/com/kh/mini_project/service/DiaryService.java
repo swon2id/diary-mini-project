@@ -27,8 +27,6 @@ public class DiaryService {
     private final CodingDiaryDao codingDiaryDao;
     private final CodingDiaryEntryDao codingDiaryEntryDao;
 
-
-
     // 예외 발생시 자동 롤백
     @Transactional
     public void saveNewDiary(AuthenticateLoginRequest loginDto, DiaryDto diaryDto) {
@@ -46,7 +44,7 @@ public class DiaryService {
         if (month.length() == 1 && month.matches("[1-9]")) {
             month = "0" + month;
         }
-        List<DiaryVo> diaryVoList = diaryDao.selectByIdAndDate(memberNum, dateDto.getYear(), month);
+        List<DiaryVo> diaryVoList = diaryDao.selectByMemberNumAndDate(memberNum, dateDto.getYear(), month);
 
         // 2단계: 조회되는 일기가 없다면 null 반환
         if (diaryVoList.isEmpty()) return null;
@@ -131,6 +129,7 @@ public class DiaryService {
     @Transactional
     public void updateDiary(AuthenticateLoginRequest loginDto, int diaryNum, DiaryDto updatedDiaryDto) {
         int memberNum = getMemberNumOrThrow(loginDto);
+        isDiaryOwner(memberNum, diaryNum);
 
         // 다이어리 업데이트
         if (!diaryDao.update(diaryNum, updatedDiaryDto.getTitle(), updatedDiaryDto.getContent(), TimeUtils.convertToLocalDateTime(updatedDiaryDto.getWrittenDate()))) {
@@ -152,6 +151,26 @@ public class DiaryService {
         insertCodingDiaryEntries(diaryNum, updatedDiaryDto.getCodingDiaryEntries());
     }
 
+    @Transactional
+    public void deleteDiary(AuthenticateLoginRequest loginDto, int diaryNum) {
+        int memberNum = getMemberNumOrThrow(loginDto);
+        isDiaryOwner(memberNum, diaryNum);
+
+        // 일기 태그 삭제
+        diaryTagDao.deleteByDiaryNum(diaryNum);
+
+        // 코딩 일기 항목, 코딩 일기 삭제
+        CodingDiaryVo codingDiaryVo = codingDiaryDao.selectByDiaryNum(diaryNum);
+        if (codingDiaryVo != null) {
+            int codingDiaryNum = codingDiaryVo.getCodingDiaryNum();
+            codingDiaryEntryDao.deleteByCodingDiaryNum(codingDiaryNum);
+            codingDiaryDao.deleteByDiaryNum(diaryNum);
+        }
+
+        // 일기 삭제
+        diaryDao.deleteByDiaryNum(diaryNum);
+    }
+
     /**
      * 이하는 코드 중복 제거 및 가독성을 높이기 위한 헬퍼 메서드 입니다.
      * */
@@ -161,6 +180,15 @@ public class DiaryService {
             throw new IllegalArgumentException("ID, PW는 인증되었지만, ID로 memberNum을 조회하는데 실패하였습니다.");
         }
         return memberNum;
+    }
+
+    private void isDiaryOwner(int memberNum, int diaryNum) {
+        List<DiaryVo> diaryVoList = diaryDao.selectByMemberNum(memberNum);
+        boolean exists = diaryVoList.stream()
+                .anyMatch(diaryVo -> diaryVo.getDiaryNum() == diaryNum);
+        if (!exists) {
+            throw new SecurityException();
+        }
     }
 
     private int insertDiaryAndReturnPk(int memberNum, DiaryDto diaryDto) {
