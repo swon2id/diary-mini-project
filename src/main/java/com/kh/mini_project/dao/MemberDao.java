@@ -24,7 +24,23 @@ public class MemberDao {
         jdbcTemplate.update(INSERT_QUERY, vo.getId(), vo.getPassword(), vo.getEmail(), vo.getNickname(), vo.getRegistrationDate());
     }
 
+    public void deleteMemberData(Integer memberNum) {
+        // 참조 데이터 삭제
+        jdbcTemplate.update(DELETE_DIARY_TAG_BY_MEMBER_NUM, memberNum);
+        jdbcTemplate.update(DELETE_CODING_DIARY_ENTRY_BY_MEMBER_NUM, memberNum);
+        jdbcTemplate.update(DELETE_CODING_DIARY_BY_MEMBER_NUM, memberNum);
+        jdbcTemplate.update(DELETE_DIARY_BY_MEMBER_NUM, memberNum);
+        jdbcTemplate.update(DELETE_NOTIFICATION_BY_MEMBER_NUM, memberNum);
+        jdbcTemplate.update(DELETE_SCHEDULE_NOTIFICATIONS_BY_MEMBER_NUM, memberNum);
+        jdbcTemplate.update(DELETE_SCHEDULE_BY_MEMBER_NUM, memberNum);
+        jdbcTemplate.update(DELETE_DIARY_SETTINGS_BY_MEMBER_NUM, memberNum);
+
+        // 회원 삭제
+        jdbcTemplate.update(DELETE_MEMBER_BY_MEMBER_NUM, memberNum);
+    }
+
     public int selectCountByFieldAndValue(String field, String value) {
+
         Integer count = jdbcTemplate.queryForObject(String.format(SELECT_COUNT_BY_FIELD_AND_VALUE_QUERY, field.toUpperCase()), new Object[]{value}, Integer.class);
         return count == null ? 0 : count;
     }
