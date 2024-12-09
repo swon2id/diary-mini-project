@@ -2,7 +2,7 @@ package com.kh.mini_project.controller;
 
 import com.kh.mini_project.dto.DiaryDto;
 import com.kh.mini_project.dto.MonthlyDiaryEntryDto;
-import com.kh.mini_project.dto.request.GetMonthlyDiaryListRequest;
+import com.kh.mini_project.dto.request.GetMonthlyDataListRequest;
 import com.kh.mini_project.dto.request.GetOrDeleteDiaryRequest;
 import com.kh.mini_project.dto.request.SaveNewDiaryRequest;
 import com.kh.mini_project.dto.request.UpdateDiaryRequest;
@@ -46,7 +46,7 @@ public class DiaryController {
     }
 
     @PostMapping("get-monthly-list")
-    public ResponseEntity<Map<String, Object>> handleGetMonthlyDiaryList(@Valid @RequestBody GetMonthlyDiaryListRequest dto) {
+    public ResponseEntity<Map<String, Object>> handleGetMonthlyDiaryList(@Valid @RequestBody GetMonthlyDataListRequest dto) {
         Map<String, Object> response = new HashMap<>();
         HttpStatus httpStatus;
 

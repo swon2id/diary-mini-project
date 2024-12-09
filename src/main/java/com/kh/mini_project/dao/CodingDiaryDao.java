@@ -29,15 +29,12 @@ public class CodingDiaryDao {
         return key != null ? key.intValue() : null;
     }
 
-    public CodingDiaryVo selectByDiaryNum(int diaryNum) {
+    public Integer selectCodingDiaryNumByDiaryNum(int diaryNum) {
         try {
             return jdbcTemplate.queryForObject(
-                    SELECT_BY_DIARY_NUM_QUERY,
+                    SELECT_CODING_DIARY_NUM_BY_DIARY_NUM_QUERY,
                     new Object[]{diaryNum},
-                    (rs, rowNum) -> new CodingDiaryVo(
-                            rs.getInt("CODING_DIARY_NUM"),
-                            rs.getInt("DIARY_NUM")
-                    )
+                    Integer.class
             );
         }
         // 결과가 없으면 null 반환

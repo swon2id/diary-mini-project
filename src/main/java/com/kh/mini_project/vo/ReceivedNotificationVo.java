@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Setter
 public class ReceivedNotificationVo {
     private Integer receivedNotificationNum;
-    private Integer notificationNum;
+    private Integer scheduleNum;
     private Integer memberNum;
     private LocalDateTime publishedAt;
     private String alertMethod;

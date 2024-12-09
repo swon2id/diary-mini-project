@@ -65,17 +65,11 @@ public class DiaryDao {
         return 1 == jdbcTemplate.update(UPDATE_QUERY, title, content, writtenDate, diaryNum);
     }
 
-    public List<DiaryVo> selectByMemberNum(int memberNum) {
-        return jdbcTemplate.query(SELECT_BY_MEMBER_NUM_QUERY, new Object[]{memberNum}, (rs, rowNum) -> new DiaryVo(
-                rs.getInt("DIARY_NUM"),
-                rs.getInt("MEMBER_NUM"),
-                rs.getString("TITLE"),
-                rs.getString("CONTENT"),
-                rs.getTimestamp("WRITTEN_DATE").toLocalDateTime()
-        ));
+    public List<Integer> selectDiaryNumByMemberNum(int memberNum) {
+        return jdbcTemplate.queryForList(SELECT_DIARY_NUM_BY_MEMBER_NUM_QUERY, new Object[]{memberNum}, Integer.class);
     }
 
     public void deleteByDiaryNum(int diaryNum) {
-        jdbcTemplate.update("DELETE FROM DIARY WHERE DIARY_NUM = ?", diaryNum);
+        jdbcTemplate.update(DELETE_BY_DIARY_NUM_QUERY, diaryNum);
     }
 }

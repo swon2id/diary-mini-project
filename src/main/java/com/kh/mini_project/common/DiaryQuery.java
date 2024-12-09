@@ -9,5 +9,6 @@ public class DiaryQuery {
     public static final String SELECT_BY_DIARY_NUM_QUERY = "" +
             "SELECT * FROM DIARY WHERE DIARY_NUM = ?";
     public static final String UPDATE_QUERY = "UPDATE DIARY SET TITLE = ?, CONTENT = ?, WRITTEN_DATE = ? WHERE DIARY_NUM = ?";
-    public static final String SELECT_BY_MEMBER_NUM_QUERY = "SELECT * FROM DIARY WHERE MEMBER_NUM = ?";
+    public static final String SELECT_DIARY_NUM_BY_MEMBER_NUM_QUERY = "SELECT DIARY_NUM FROM DIARY WHERE MEMBER_NUM = ?";
+    public static final String DELETE_BY_DIARY_NUM_QUERY = "DELETE FROM DIARY WHERE DIARY_NUM = ?";
 }

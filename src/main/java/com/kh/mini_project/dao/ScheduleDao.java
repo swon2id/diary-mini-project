@@ -8,8 +8,10 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
+import java.time.LocalDateTime;
+import java.util.List;
 
-import static com.kh.mini_project.common.ScheduleQuery.INSERT_QUERY;
+import static com.kh.mini_project.common.ScheduleQuery.*;
 
 @Repository
 @RequiredArgsConstructor
@@ -35,5 +37,17 @@ public class ScheduleDao {
 
         Number key = keyHolder.getKey();
         return key != null ? key.intValue() : null;
+    }
+
+    public List<Integer> selectByMemberNum(int memberNum) {
+        return jdbcTemplate.queryForList(SELECT_SCHEDULE_NUM_BY_MEMBER_NUM_QUERY, new Object[]{memberNum}, Integer.class);
+    }
+
+    public boolean update(int scheduleNum, String title, String description, LocalDateTime startDate, LocalDateTime endDate, boolean isAllday, boolean isImportant) {
+        return 1 == jdbcTemplate.update(UPDATE_QUERY, title, description, startDate, endDate, isAllday, isImportant, scheduleNum);
+    }
+
+    public void deleteByScheduleNum(int scheduleNum) {
+        jdbcTemplate.update(DELETE_BY_SCHEDULE_NUM, scheduleNum);
     }
 }

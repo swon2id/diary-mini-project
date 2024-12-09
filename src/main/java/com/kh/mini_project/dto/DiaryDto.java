@@ -36,7 +36,11 @@ public class DiaryDto {
 
     @Data
     public static class CodingDiaryEntryDto {
-        // 값이 전달되지 않을 수 있음
+        @NotBlank(message = "코딩일기항목의 entryType이 전달되지 않았습니다.")
+        @Pattern(regexp = "^(snippet|comment)$", message = "entryType은 'snippet', 'comment' 중 하나여야 합니다.")
+        private String entryType;
+
+        // 값이 전달되지 않을 수 있음 -> entryType에 따라 검증?
         private String programmingLanguageName;
 
         @NotBlank(message = "코딩일기항목의 내용이 전달되지 않았습니다.")

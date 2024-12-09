@@ -3,9 +3,9 @@ package com.kh.mini_project.service;
 import com.kh.mini_project.common.TimeUtils;
 import com.kh.mini_project.dao.*;
 import com.kh.mini_project.dto.DiaryDto;
+import com.kh.mini_project.dto.MonthlyDateDto;
 import com.kh.mini_project.dto.MonthlyDiaryEntryDto;
 import com.kh.mini_project.dto.request.AuthenticateLoginRequest;
-import com.kh.mini_project.dto.request.GetMonthlyDiaryListRequest;
 import com.kh.mini_project.vo.CodingDiaryEntryVo;
 import com.kh.mini_project.vo.CodingDiaryVo;
 import com.kh.mini_project.vo.DiaryTagVo;
@@ -36,7 +36,7 @@ public class DiaryService {
         insertCodingDiaryEntries(diaryNum, diaryDto.getCodingDiaryEntries());
     }
 
-    public List<MonthlyDiaryEntryDto> getDiaryListMonthly(AuthenticateLoginRequest loginDto, GetMonthlyDiaryListRequest.DateDto dateDto) {
+    public List<MonthlyDiaryEntryDto> getDiaryListMonthly(AuthenticateLoginRequest loginDto, MonthlyDateDto dateDto) {
         int memberNum = getMemberNumOrThrow(loginDto);
 
         // 1단계: 일기 목록 조회
@@ -96,10 +96,10 @@ public class DiaryService {
         List<DiaryTagVo> diaryTagVoList = diaryTagDao.selectByDiaryNum(diaryNum);
 
         // 4단계: 일기에 대한 코딩 일기 및 코딩 일기 항목 조회
-        CodingDiaryVo codingDiaryVo = codingDiaryDao.selectByDiaryNum(diaryNum);
+        Integer codingDiaryNum = codingDiaryDao.selectCodingDiaryNumByDiaryNum(diaryNum);
         List<DiaryDto.CodingDiaryEntryDto> codingDiaryEntries = null;
-        if (codingDiaryVo != null) {
-            List<CodingDiaryEntryVo> codingDiaryEntryVoList = codingDiaryEntryDao.selectByCodingDiaryNum(codingDiaryVo.getCodingDiaryNum());
+        if (codingDiaryNum != null) {
+            List<CodingDiaryEntryVo> codingDiaryEntryVoList = codingDiaryEntryDao.selectByCodingDiaryNum(codingDiaryNum);
             codingDiaryEntries = new ArrayList<>();
 
             for (var entryVo: codingDiaryEntryVoList) {
@@ -133,7 +133,7 @@ public class DiaryService {
 
         // 다이어리 업데이트
         if (!diaryDao.update(diaryNum, updatedDiaryDto.getTitle(), updatedDiaryDto.getContent(), TimeUtils.convertToLocalDateTime(updatedDiaryDto.getWrittenDate()))) {
-            throw new EmptyResultDataAccessException("업데이트 된 일기가 존재하지 않습니다. DiaryNum: " + diaryNum, 1);
+            throw new EmptyResultDataAccessException("업데이트 된 일기가 존재하지 않습니다. Diary 번호: " + diaryNum, 1);
         }
 
         // 다이어리 태그 업데이트
@@ -141,9 +141,8 @@ public class DiaryService {
         insertTags(diaryNum, updatedDiaryDto.getTags());
 
         // 코딩 다이어리 및 항목 업데이트
-        CodingDiaryVo oldCodingDiaryVo = codingDiaryDao.selectByDiaryNum(diaryNum);
-        if (oldCodingDiaryVo != null) {
-            int oldCodingDiaryNum = oldCodingDiaryVo.getCodingDiaryNum();
+        Integer oldCodingDiaryNum = codingDiaryDao.selectCodingDiaryNumByDiaryNum(diaryNum);
+        if (oldCodingDiaryNum != null) {
             codingDiaryEntryDao.deleteByCodingDiaryNum(oldCodingDiaryNum);
             codingDiaryDao.deleteByDiaryNum(diaryNum);
         }
@@ -160,9 +159,8 @@ public class DiaryService {
         diaryTagDao.deleteByDiaryNum(diaryNum);
 
         // 코딩 일기 항목, 코딩 일기 삭제
-        CodingDiaryVo codingDiaryVo = codingDiaryDao.selectByDiaryNum(diaryNum);
-        if (codingDiaryVo != null) {
-            int codingDiaryNum = codingDiaryVo.getCodingDiaryNum();
+        Integer codingDiaryNum = codingDiaryDao.selectCodingDiaryNumByDiaryNum(diaryNum);
+        if (codingDiaryNum != null) {
             codingDiaryEntryDao.deleteByCodingDiaryNum(codingDiaryNum);
             codingDiaryDao.deleteByDiaryNum(diaryNum);
         }
@@ -183,9 +181,8 @@ public class DiaryService {
     }
 
     private void isDiaryOwner(int memberNum, int diaryNum) {
-        List<DiaryVo> diaryVoList = diaryDao.selectByMemberNum(memberNum);
-        boolean exists = diaryVoList.stream()
-                .anyMatch(diaryVo -> diaryVo.getDiaryNum() == diaryNum);
+        List<Integer> diaryNumList = diaryDao.selectDiaryNumByMemberNum(memberNum);
+        boolean exists = diaryNumList.contains(diaryNum);
         if (!exists) {
             throw new SecurityException();
         }
