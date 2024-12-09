@@ -21,4 +21,13 @@ public class NotificationDao {
     public void deleteByScheduleNum(int scheduleNum) {
         jdbcTemplate.update(DELETE_BY_SCHEDULE_NUM, scheduleNum);
     }
+
+    public List<NotificationVo> selectByScheduleNum(int scheduleNum) {
+        return jdbcTemplate.query(SELECT_BY_SCHEDULE_NUM, new Object[]{scheduleNum}, (rs, rowNum) -> new NotificationVo(
+                rs.getInt("NOTIFICATION_NUM"),
+                rs.getInt("SCHEDULE_NUM"),
+                rs.getTimestamp("ALERT_TIME").toLocalDateTime(),
+                rs.getString("ALERT_METHOD")
+        ));
+    }
 }

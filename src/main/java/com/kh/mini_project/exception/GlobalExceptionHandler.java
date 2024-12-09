@@ -8,6 +8,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -41,6 +42,47 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
         return new ResponseEntity<>(new ErrorResponse("UNIQUE 이외 무결성 제약조건 위반입니다."), HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * UncategorizedSQLException 예외 처리
+     */
+    @ExceptionHandler(UncategorizedSQLException.class)
+    public ResponseEntity<ErrorResponse> handleUncategorizedSQLException(UncategorizedSQLException e) {
+        Map<String, String> ERROR_CODE_TO_MESSAGE = Map.of(
+                "ORA-20001", "PROGRAMMING_LANGUAGE_NAME은 snippet 유형인 경우 null 값을 가질 수 없습니다.",
+                "ORA-20002", "PROGRAMMING_LANGUAGE_NAME은 comment 유형인 경우 null 값 이어야 합니다.",
+                "ORA-20003", "START_DATE는 END_DATE 이후일 수 없습니다."
+        );
+
+        // 전체 에러 메시지
+        String fullMessage = e.getMessage();
+
+        // ORA- 에러 코드 추출
+        String errorCode = extractErrorCode(fullMessage);
+
+        // 매핑된 메시지를 찾거나 기본 메시지 사용
+        String userMessage = ERROR_CODE_TO_MESSAGE.getOrDefault(
+                errorCode,
+                "알 수 없는 데이터베이스 오류가 발생했습니다."
+        );
+
+        // 에러 응답 반환
+        ErrorResponse errorResponse = new ErrorResponse(userMessage);
+        return ResponseEntity.badRequest().body(errorResponse);
+    }
+
+    /**
+     * 에러 메시지에서 ORA- 에러 코드를 추출
+     */
+    private String extractErrorCode(String fullMessage) {
+        if (fullMessage != null) {
+            int startIndex = fullMessage.indexOf("ORA-");
+            if (startIndex != -1) {
+                return fullMessage.substring(startIndex, startIndex + 9); // "ORA-20001" 추출
+            }
+        }
+        return null; // ORA- 코드가 없으면 null 반환
     }
 
     /**

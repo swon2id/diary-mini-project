@@ -54,7 +54,7 @@ public class DiaryController {
             response.put("success", false);
             httpStatus = HttpStatus.UNAUTHORIZED;
         } else {
-            List<MonthlyDiaryEntryDto> diaries = diaryService.getDiaryListMonthly(dto.getLoggedInMember(), dto.getDate());
+            List<MonthlyDiaryEntryDto> diaries = diaryService.getMonthlyDiaryList(dto.getLoggedInMember(), dto.getDate());
             response.put("success", true);
             response.put("diaries", diaries);
             httpStatus = HttpStatus.OK;

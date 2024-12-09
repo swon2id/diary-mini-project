@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class GetOrDeleteScheduleRequest {
+public class DeleteScheduleRequest {
     @Valid
     @NotNull(message = "loggedInMember가 전달되지 않았습니다.")
     private AuthenticateLoginRequest loggedInMember;

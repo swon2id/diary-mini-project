@@ -39,6 +39,19 @@ public class ScheduleDao {
         return key != null ? key.intValue() : null;
     }
 
+    public List<ScheduleVo> selectByMemberNumAndDate(int memberNum, String year, String month) {
+        return jdbcTemplate.query(SELECT_BY_MEMBER_NUM_AND_DATE_QUERY, new Object[]{memberNum, year+month, year+month}, (rs, rowNum) -> new ScheduleVo(
+                rs.getInt("SCHEDULE_NUM"),
+                rs.getInt("MEMBER_NUM"),
+                rs.getString("TITLE"),
+                rs.getString("DESCRIPTION"),
+                rs.getTimestamp("START_DATE").toLocalDateTime(),
+                rs.getTimestamp("END_DATE").toLocalDateTime(),
+                rs.getBoolean("IS_ALLDAY"),
+                rs.getBoolean("IS_IMPORTANT")
+        ));
+    }
+
     public List<Integer> selectByMemberNum(int memberNum) {
         return jdbcTemplate.queryForList(SELECT_SCHEDULE_NUM_BY_MEMBER_NUM_QUERY, new Object[]{memberNum}, Integer.class);
     }

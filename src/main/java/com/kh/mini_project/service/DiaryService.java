@@ -36,7 +36,7 @@ public class DiaryService {
         insertCodingDiaryEntries(diaryNum, diaryDto.getCodingDiaryEntries());
     }
 
-    public List<MonthlyDiaryEntryDto> getDiaryListMonthly(AuthenticateLoginRequest loginDto, MonthlyDateDto dateDto) {
+    public List<MonthlyDiaryEntryDto> getMonthlyDiaryList(AuthenticateLoginRequest loginDto, MonthlyDateDto dateDto) {
         int memberNum = getMemberNumOrThrow(loginDto);
 
         // 1단계: 일기 목록 조회

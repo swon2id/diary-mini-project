@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
-import java.util.LinkedHashSet;
+import java.util.List;
 
 @Data
 @AllDayDateCheck
@@ -40,9 +40,8 @@ public class ScheduleDto {
     private Boolean isImportant;
 
     // 값이 전달되지 않을 수 있음
-    // 중복 불허, 순서 보장
     @Valid
-    private LinkedHashSet<NotificationDto> notifications;
+    private List<NotificationDto> notifications;
 
     @Data
     public static class NotificationDto {
@@ -55,6 +54,7 @@ public class ScheduleDto {
         private String alertTime;
 
         @NotBlank(message = "알림의 alertMethod가 전달되지 않았습니다.")
+        @Pattern(regexp = "^(webPush)$", message = "alertMethod는 현재 'webPush'만 지원합니다.")
         private String alertMethod;
     }
 }
