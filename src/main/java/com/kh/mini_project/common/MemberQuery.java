@@ -20,7 +20,4 @@ public class MemberQuery {
 
     // 회원 삭제 쿼리
     public static final String DELETE_MEMBER_BY_MEMBER_NUM = "DELETE FROM MEMBER WHERE MEMBER_NUM = ?";
-
-    // 회원 정보 수정
-    public static final String UPDATE_MEMBER_QUERY = "UPDATE MEMBER SET EMAIL = ?, NICKNAME = ?, PASSWORD = ? WHERE MEMBER_NUM = ?";
 }

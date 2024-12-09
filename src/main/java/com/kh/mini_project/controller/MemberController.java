@@ -45,21 +45,6 @@ public class MemberController {
         }
     }
 
-    // 회원정보 수정 (PUT)
-    @PutMapping("/{memberNum}/update")
-    public ResponseEntity<String> updateMemberInfo(
-            @PathVariable("memberNum") Integer memberNum,
-            @RequestBody MemberVo updatedMember
-    ) {
-        try {
-            // 업데이트 로직 호출
-            memberDao.updateMemberInfo(memberNum, updatedMember);
-            return ResponseEntity.ok("회원정보가 성공적으로 수정되었습니다.");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("회원정보 수정 중 오류가 발생했습니다.");
-        }
-    }
-
 //    @DeleteMapping("/delete")
 //    public ResponseEntity<String> deleteMember(@RequestBody Map<String, String> requestBody) {
 //        String id = requestBody.get("id");
