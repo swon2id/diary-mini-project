@@ -39,6 +39,17 @@ public class MemberDao {
         jdbcTemplate.update(DELETE_MEMBER_BY_MEMBER_NUM, memberNum);
     }
 
+    // 회원 정보 수정
+    public void updateMemberInfo(Integer memberNum, MemberVo updatedMember) {
+        jdbcTemplate.update(
+                UPDATE_MEMBER_QUERY,
+                updatedMember.getEmail(),
+                updatedMember.getNickname(),
+                updatedMember.getPassword(),
+                memberNum
+        );
+    }
+
     public int selectCountByFieldAndValue(String field, String value) {
 
         Integer count = jdbcTemplate.queryForObject(String.format(SELECT_COUNT_BY_FIELD_AND_VALUE_QUERY, field.toUpperCase()), new Object[]{value}, Integer.class);
