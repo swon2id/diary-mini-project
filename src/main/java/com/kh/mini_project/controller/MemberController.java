@@ -1,11 +1,14 @@
 package com.kh.mini_project.controller;
 
 import com.kh.mini_project.dao.MemberDao;
+import com.kh.mini_project.dto.request.UpdateMemberRequest;
 import com.kh.mini_project.vo.MemberVo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
+
+import java.util.HashMap;
 import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -45,16 +48,30 @@ public class MemberController {
         }
     }
 
-    // 회원정보 수정 (PUT)
-    @PutMapping("/{memberNum}/update")
-    public ResponseEntity<String> updateMemberInfo(
-            @PathVariable("memberNum") Integer memberNum,
-            @RequestBody MemberVo updatedMember
-    ) {
+    // 회원정보 수정
+    @PostMapping("/update")
+    public ResponseEntity<String> updateMemberInfo(@RequestBody UpdateMemberRequest dto) {
+        String newId = dto.getId();
+        String newPassword = dto.getPassword();
+        String newEmail = dto.getEmail();
+        String newNickname = dto.getNickname();
+
         try {
             // 업데이트 로직 호출
-            memberDao.updateMemberInfo(memberNum, updatedMember);
+            memberDao.updateMemberInfo(newId, newEmail, newNickname, newPassword);
             return ResponseEntity.ok("회원정보가 성공적으로 수정되었습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("회원정보 수정 중 오류가 발생했습니다.");
+        }
+    }
+
+    @PostMapping("/get")
+    public ResponseEntity<Object> getMemberInfo(@RequestBody Map<String, String> id) {
+        try {
+            // 업데이트 로직 호출
+            Map<String, Object> response = new HashMap<>();
+            response.put("memberInfo", memberDao.selectById(id.get("id")));
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("회원정보 수정 중 오류가 발생했습니다.");
         }

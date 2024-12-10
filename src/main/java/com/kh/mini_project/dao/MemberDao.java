@@ -39,14 +39,27 @@ public class MemberDao {
         jdbcTemplate.update(DELETE_MEMBER_BY_MEMBER_NUM, memberNum);
     }
 
+    public MemberVo selectById(String id) {
+        String sql = "SELECT * FROM MEMBER WHERE ID = ?";
+        return jdbcTemplate.queryForObject(sql, new Object[]{id}, (rs, rowNum) -> new MemberVo(
+                rs.getInt("MEMBER_NUM"),
+                rs.getString("ID"),
+                rs.getString("PASSWORD"),
+                rs.getString("EMAIL"),
+                rs.getString("NICKNAME"),
+                rs.getTimestamp("REGISTRATION_DATE").toLocalDateTime()
+        ));
+    }
+
     // 회원 정보 수정
-    public void updateMemberInfo(Integer memberNum, MemberVo updatedMember) {
+    public void updateMemberInfo(String id, String email, String nickname, String password) {
+        String sql = "UPDATE MEMBER SET EMAIL = ?, NICKNAME = ?, PASSWORD = ? WHERE ID = ?";
         jdbcTemplate.update(
-                UPDATE_MEMBER_QUERY,
-                updatedMember.getEmail(),
-                updatedMember.getNickname(),
-                updatedMember.getPassword(),
-                memberNum
+                sql,
+                email,
+                nickname,
+                password,
+                id
         );
     }
 
