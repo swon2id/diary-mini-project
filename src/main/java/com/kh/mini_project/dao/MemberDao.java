@@ -60,7 +60,6 @@ public class MemberDao {
     public void updateMemberInfo(String id, String email, String nickname, String password) {
         String sql = "UPDATE MEMBER SET EMAIL = ?, NICKNAME = ?, PASSWORD = ? WHERE ID = ?";
         try {
-
             int rowsUpdated = jdbcTemplate.update(sql, email, nickname, password, id);
         } catch (Exception e) {
             log.error("Error during update operation", e);
