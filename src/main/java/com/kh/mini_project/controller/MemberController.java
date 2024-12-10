@@ -60,6 +60,7 @@ public class MemberController {
         try {
             // 업데이트 로직 호출
             memberDao.updateMemberInfo(newId, newEmail, newNickname, newPassword);
+
             return ResponseEntity.ok("회원정보가 성공적으로 수정되었습니다.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("회원정보 수정 중 오류가 발생했습니다.");
