@@ -4,6 +4,7 @@ import com.kh.mini_project.dao.MemberDao;
 import com.kh.mini_project.dto.request.UpdateMemberRequest;
 import com.kh.mini_project.vo.MemberVo;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @CrossOrigin(origins = "http://localhost:3000")
 @RequiredArgsConstructor
 @RestController
@@ -55,7 +57,6 @@ public class MemberController {
         String newPassword = dto.getPassword();
         String newEmail = dto.getEmail();
         String newNickname = dto.getNickname();
-
         try {
             // 업데이트 로직 호출
             memberDao.updateMemberInfo(newId, newEmail, newNickname, newPassword);

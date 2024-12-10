@@ -2,17 +2,21 @@ package com.kh.mini_project.dao;
 
 import com.kh.mini_project.vo.MemberVo;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 // import static 이란?
 // 클래스명을 생략하고 static 멤버 접근 가능
 import static com.kh.mini_project.common.MemberQuery.*;
 
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class MemberDao {
+
     private final JdbcTemplate jdbcTemplate;
 
     public void insert(MemberVo vo) {
@@ -52,15 +56,15 @@ public class MemberDao {
     }
 
     // 회원 정보 수정
+    @Transactional
     public void updateMemberInfo(String id, String email, String nickname, String password) {
         String sql = "UPDATE MEMBER SET EMAIL = ?, NICKNAME = ?, PASSWORD = ? WHERE ID = ?";
-        jdbcTemplate.update(
-                sql,
-                email,
-                nickname,
-                password,
-                id
-        );
+        try {
+            int rowsUpdated = jdbcTemplate.update(sql, email, nickname, password, id);
+        } catch (Exception e) {
+            log.error("Error during update operation", e);
+            throw e;  // 예외가 발생하면 롤백되도록
+        }
     }
 
     public int selectCountByFieldAndValue(String field, String value) {
