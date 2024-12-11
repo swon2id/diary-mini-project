@@ -3,10 +3,14 @@ package com.kh.mini_project.dao;
 import com.kh.mini_project.vo.MemberVo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 // import static 이란?
 // 클래스명을 생략하고 static 멤버 접근 가능
+import java.sql.PreparedStatement;
+
 import static com.kh.mini_project.common.MemberQuery.*;
 
 
@@ -15,13 +19,22 @@ import static com.kh.mini_project.common.MemberQuery.*;
 public class MemberDao {
     private final JdbcTemplate jdbcTemplate;
 
-    public void insert(MemberVo vo) {
-        // INSERT 실패 경우의 수
-        // 1. SQL 구문 오류 => DataAccessException
-        // 2. 서브쿼리를 조건으로 사용했으나, 서브쿼리가 아무런 튜플을 반환하지 않은 경우 => update 메서드는 0을 반환
+    public Integer insertAndReturnPk(MemberVo vo) {
+        // 생성된 pk 값을 얻기 위한 KeyHolder
+        KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        // 서브 쿼리를 사용하지 않으므로, update 리턴 값 검증 로직 작성 X
-        jdbcTemplate.update(INSERT_QUERY, vo.getId(), vo.getPassword(), vo.getEmail(), vo.getNickname(), vo.getRegistrationDate());
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(INSERT_QUERY, new String[]{"MEMBER_NUM"});
+            ps.setString(1, vo.getId());
+            ps.setString(2, vo.getPassword());
+            ps.setString(3, vo.getEmail());
+            ps.setString(4, vo.getNickname());
+            ps.setObject(5, vo.getRegistrationDate());
+            return ps;
+        }, keyHolder);
+
+        Number key = keyHolder.getKey();
+        return key != null ? key.intValue() : null;
     }
 
     public void deleteMemberData(Integer memberNum) {

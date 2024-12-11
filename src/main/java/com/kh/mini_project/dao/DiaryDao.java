@@ -58,7 +58,6 @@ public class DiaryDao {
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
-
     }
 
     public boolean update(int diaryNum, String title, String content, LocalDateTime writtenDate) {
