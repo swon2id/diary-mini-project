@@ -1,19 +1,30 @@
 package com.kh.mini_project.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 @Data
 public class DiarySettingDto {
-    @NotBlank(message = "폰트가 전달되지 않았습니다.")
+    @Pattern(regexp = "^(Do Hyeon|Gowun Dodum|Hi Melody|Jua|default)$", message = "font는 'Do Hyeon', 'Gowun Dodum', 'Hi Melody', 'Jua', 'default' 중 하나여야 합니다.")
     private String font;
 
-    @NotBlank(message = "테마가 전달되지 않았습니다.")
+    @Pattern(regexp = "^(dark|default)$", message = "theme는 'dark', 'default' 중 하나여야 합니다.")
     private String theme;
 
-    @NotBlank(message = "메인 배너 이미지가 전달되지 않았습니다.")
+    @Pattern(regexp = "^(banner1|banner2|banner3|banner4|default)$", message = "mainBannerImage는 'banner1~4', 'default' 중 하나여야 합니다.")
     private String mainBannerImage;
-
-    @NotBlank(message = "알림 소리가 전달되지 않았습니다.")
     private String alertSound;
+
+    /**
+     * 모든 필드 중 적어도 하나가 비어 있지 않은지 확인합니다.
+     *
+     * @return true if at least one field is not blank
+     */
+    public boolean isValid() {
+        return font != null && !font.isBlank() ||
+                theme != null && !theme.isBlank() ||
+                mainBannerImage != null && !mainBannerImage.isBlank() ||
+                alertSound != null && !alertSound.isBlank();
+    }
 }

@@ -11,6 +11,9 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -39,18 +42,31 @@ public class DiarySettingService {
             log.info("No existing diary setting found. Inserted new one for memberNum: {}", memberNum);
             // 이렇게 추가함으로서 이제 필요시 업데이트가 가능
         } else {
-            boolean updateResult = diarySettingDao.update(
-                    memberNum,
-                    updatedDiarySettingDto.getTheme(),
-                    updatedDiarySettingDto.getFont(),
-                    updatedDiarySettingDto.getMainBannerImage(),
-                    updatedDiarySettingDto.getAlertSound()
-            );
-            if (!updateResult) {
-                log.warn("Failed to update diary setting for memberNum: {}", memberNum);
-                throw new EmptyResultDataAccessException("업데이트 된 일기 설정이 존재하지 않습니다.", 1);
+            // 업데이트할 필드만 선택
+            Map<String, Object> fieldsToUpdate = new HashMap<>();
+            if (updatedDiarySettingDto.getTheme() != null) {
+                fieldsToUpdate.put("CURRENT_THEME", updatedDiarySettingDto.getTheme());
             }
-            log.info("Successfully updated diary setting for memberNum: {}", memberNum);
+            if (updatedDiarySettingDto.getFont() != null) {
+                fieldsToUpdate.put("CURRENT_FONT", updatedDiarySettingDto.getFont());
+            }
+            if (updatedDiarySettingDto.getMainBannerImage() != null) {
+                fieldsToUpdate.put("CURRENT_MAIN_BANNER_IMAGE", updatedDiarySettingDto.getMainBannerImage());
+            }
+            if (updatedDiarySettingDto.getAlertSound() != null) {
+                fieldsToUpdate.put("CURRENT_ALERT_SOUND", updatedDiarySettingDto.getAlertSound());
+            }
+
+            if (!fieldsToUpdate.isEmpty()) {
+                boolean updateResult = diarySettingDao.update(memberNum, fieldsToUpdate);
+                if (!updateResult) {
+                    log.warn("Failed to update diary setting for memberNum: {}", memberNum);
+                    throw new EmptyResultDataAccessException("업데이트 된 일기 설정이 존재하지 않습니다.", 1);
+                }
+                log.info("Successfully updated diary setting for memberNum: {}", memberNum);
+            } else {
+                log.info("No fields provided for update. Skipping update for memberNum: {}", memberNum);
+            }
         }
     }
 

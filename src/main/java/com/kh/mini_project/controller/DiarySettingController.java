@@ -27,11 +27,15 @@ public class DiarySettingController {
     @PostMapping("/update")
     public ResponseEntity<Map<String, Object>> handleUpdateDiarySetting(@Valid @RequestBody UpdateDiarySettingRequest dto) {
         log.info("Received update request for diary setting: {}", dto);
-
         Map<String, Object> response = new HashMap<>();
         HttpStatus httpStatus;
 
-        if (!authService.validateCredentials(dto.getLoggedInMember())) {
+        if (!dto.getUpdatedDiarySetting().isValid()) {
+            response.put("success", false);
+            response.put("message", "전달된 필드가 존재하지 않습니다.");
+            httpStatus = HttpStatus.BAD_REQUEST;
+        }
+        else if (!authService.validateCredentials(dto.getLoggedInMember())) {
             log.warn("Authentication failed for user: {}", dto.getLoggedInMember().getId());
             response.put("success", false);
             httpStatus = HttpStatus.UNAUTHORIZED;

@@ -6,6 +6,10 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 @Repository
 @RequiredArgsConstructor
 public class DiarySettingDao {
@@ -37,8 +41,20 @@ public class DiarySettingDao {
         }
     }
 
-    public boolean update(int memberNum, String theme, String font, String bannerImage, String alertSound) {
-        String UPDATE_QUERY = "UPDATE DIARY_SETTING SET CURRENT_THEME = ?, CURRENT_FONT = ?, CURRENT_MAIN_BANNER_IMAGE = ?, CURRENT_ALERT_SOUND = ? WHERE MEMBER_NUM =?";
-        return 1 == jdbcTemplate.update(UPDATE_QUERY, theme, font, bannerImage, alertSound, memberNum);
+    public boolean update(int memberNum, Map<String, Object> fieldsToUpdate) {
+        StringBuilder queryBuilder = new StringBuilder("UPDATE DIARY_SETTING SET ");
+        List<Object> parameters = new ArrayList<>();
+
+        for (Map.Entry<String, Object> entry : fieldsToUpdate.entrySet()) {
+            queryBuilder.append(entry.getKey()).append(" = ?, ");
+            parameters.add(entry.getValue());
+        }
+
+        queryBuilder.setLength(queryBuilder.length() - 2); // 맨 뒤의 ", " 제거
+        queryBuilder.append(" WHERE MEMBER_NUM = ?");
+        parameters.add(memberNum);
+
+        String finalQuery = queryBuilder.toString();
+        return 1 == jdbcTemplate.update(finalQuery, parameters.toArray());
     }
 }
