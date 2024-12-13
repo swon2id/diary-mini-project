@@ -6,11 +6,13 @@ import com.kh.mini_project.dto.DiarySettingDto;
 import com.kh.mini_project.dto.request.AuthenticateLoginRequest;
 import com.kh.mini_project.vo.DiarySettingVo;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class DiarySettingService {
     private final MemberDao memberDao;
@@ -18,10 +20,37 @@ public class DiarySettingService {
 
     @Transactional
     public void updateDiarySetting(AuthenticateLoginRequest loginDto, DiarySettingDto updatedDiarySettingDto) {
-        int memberNum = getMemberNumOrThrow(loginDto);
+        log.info("updateDiarySetting called for user: {} with settings: {}", loginDto.getId(), updatedDiarySettingDto);
 
-        if (!diarySettingDao.update(memberNum, updatedDiarySettingDto.getTheme(), updatedDiarySettingDto.getFont(), updatedDiarySettingDto.getMainBannerImage(), updatedDiarySettingDto.getAlertSound())) {
-            throw new EmptyResultDataAccessException("업데이트 된 일기 설정이 존재하지 않습니다.", 1);
+        int memberNum = getMemberNumOrThrow(loginDto);
+        log.debug("Found memberNum: {}", memberNum);
+
+        DiarySettingVo existingVo = diarySettingDao.selectByMemberNum(memberNum);
+        if (existingVo == null) {
+            // 만약 존재하는 기록이 없다면 새로운 기록 넣어줘야 한다 (디버그 체킹, 현재 업데이트 로직에서 아무것도 없을때는 못건드리므로)
+            DiarySettingVo newVo = new DiarySettingVo();
+            newVo.setMemberNum(memberNum);
+            newVo.setCurrentTheme(updatedDiarySettingDto.getTheme());
+            newVo.setCurrentFont(updatedDiarySettingDto.getFont());
+            newVo.setCurrentMainBannerImage(updatedDiarySettingDto.getMainBannerImage());
+            newVo.setCurrentAlertSound(updatedDiarySettingDto.getAlertSound());
+
+            diarySettingDao.insert(newVo);
+            log.info("No existing diary setting found. Inserted new one for memberNum: {}", memberNum);
+            // 이렇게 추가함으로서 이제 필요시 업데이트가 가능
+        } else {
+            boolean updateResult = diarySettingDao.update(
+                    memberNum,
+                    updatedDiarySettingDto.getTheme(),
+                    updatedDiarySettingDto.getFont(),
+                    updatedDiarySettingDto.getMainBannerImage(),
+                    updatedDiarySettingDto.getAlertSound()
+            );
+            if (!updateResult) {
+                log.warn("Failed to update diary setting for memberNum: {}", memberNum);
+                throw new EmptyResultDataAccessException("업데이트 된 일기 설정이 존재하지 않습니다.", 1);
+            }
+            log.info("Successfully updated diary setting for memberNum: {}", memberNum);
         }
     }
 

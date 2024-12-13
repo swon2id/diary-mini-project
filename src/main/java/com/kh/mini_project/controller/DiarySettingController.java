@@ -26,17 +26,27 @@ public class DiarySettingController {
 
     @PostMapping("/update")
     public ResponseEntity<Map<String, Object>> handleUpdateDiarySetting(@Valid @RequestBody UpdateDiarySettingRequest dto) {
+        log.info("Received update request for diary setting: {}", dto);
+
         Map<String, Object> response = new HashMap<>();
         HttpStatus httpStatus;
 
         if (!authService.validateCredentials(dto.getLoggedInMember())) {
+            log.warn("Authentication failed for user: {}", dto.getLoggedInMember().getId());
             response.put("success", false);
             httpStatus = HttpStatus.UNAUTHORIZED;
         } else {
-            diarySettingService.updateDiarySetting(dto.getLoggedInMember(), dto.getUpdatedDiarySetting());
-            response.put("success", true);
-            response.put("isUpdated", true);
-            httpStatus = HttpStatus.OK;
+            try {
+                log.info("User authenticated, proceeding to update settings: {}", dto.getUpdatedDiarySetting());
+                diarySettingService.updateDiarySetting(dto.getLoggedInMember(), dto.getUpdatedDiarySetting());
+                response.put("success", true);
+                response.put("isUpdated", true);
+                httpStatus = HttpStatus.OK;
+            } catch (Exception e) {
+                log.error("Error occurred while updating diary settings for user: " + dto.getLoggedInMember().getId(), e);
+                response.put("success", false);
+                httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+            }
         }
 
         return new ResponseEntity<>(response, httpStatus);
