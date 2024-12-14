@@ -12,6 +12,8 @@ import java.util.List;
 @Data
 @AllDayDateCheck
 public class ScheduleDto {
+    private String scheduleNum;
+
     @NotBlank(message = "일정의 title이 전달되지 않았습니다.")
     private String title;
 

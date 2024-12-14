@@ -82,6 +82,7 @@ public class ScheduleService {
         List<ScheduleDto> monthlyScheduleList = new ArrayList<>();
         for (var scheduleVo: scheduleVoList) {
             ScheduleDto scheduleDto = new ScheduleDto();
+            scheduleDto.setScheduleNum(scheduleVo.getScheduleNum().toString());
             scheduleDto.setTitle(scheduleVo.getTitle());
             scheduleDto.setDescription(scheduleVo.getDescription());
             scheduleDto.setStartDate(TimeUtils.convertLocalDateTimeToString(scheduleVo.getStartDate()));
