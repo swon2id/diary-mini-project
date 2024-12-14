@@ -107,6 +107,7 @@ public class DiaryService {
                 entryDto.setProgrammingLanguageName(entryVo.getProgrammingLanguageName());
                 entryDto.setContent(entryVo.getContent());
                 entryDto.setSequence(entryVo.getSequence());
+                entryDto.setEntryType(entryVo.getProgrammingLanguageName() == null ? "comment" : "snippet");
                 codingDiaryEntries.add(entryDto);
             }
         }

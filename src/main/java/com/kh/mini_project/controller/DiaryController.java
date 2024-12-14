@@ -30,6 +30,8 @@ public class DiaryController {
 
     @PostMapping("save")
     public ResponseEntity<Map<String, Object>> handleSaveNewDiary(@Valid @RequestBody SaveNewDiaryRequest dto) {
+        log.info("{}", dto.getNewDiary());
+
         Map<String, Object> response = new HashMap<>();
         HttpStatus httpStatus;
 
