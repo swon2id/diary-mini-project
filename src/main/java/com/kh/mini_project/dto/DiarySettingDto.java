@@ -19,7 +19,7 @@ public class DiarySettingDto {
     /**
      * 모든 필드 중 적어도 하나가 비어 있지 않은지 확인합니다.
      *
-     * @return true if at least one field is not blank
+     * @return boolean
      */
     public boolean isValid() {
         return font != null && !font.isBlank() ||
